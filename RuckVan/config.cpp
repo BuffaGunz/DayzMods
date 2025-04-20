@@ -41,7 +41,7 @@ class CfgMods
 				value="";
 				files[]=
 				{
-					"RuckLoot\scripts\4_World"
+					"RuckVan\scripts\4_World"
 				};
 			};
 		};

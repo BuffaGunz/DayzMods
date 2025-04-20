@@ -22,8 +22,7 @@ class cfgvehicles
 	class Window;
 	class CarDoor;
 	class Doors;
-	class HatchbackDoors_Driver;
-	class OffroadHatchback;
+	class CarScript;
 	class Crew;
 	class Driver;
 	class CoDriver;
@@ -43,7 +42,54 @@ class cfgvehicles
     class Inventory_Base;
 	class CarWheel;
 	class AllDrive;
-	class van_01_door_1_1: HatchbackDoors_Driver
+	class Van_01_Wheel: CarWheel
+	{
+		scope=2;
+		displayName="#STR_CfgWheel0";
+		descriptionShort="Wheel Fits Hippy Van";
+		model="\DZ\vehicles\wheeled\van_01\proxy\van_01_wheel.p3d";
+		weight=15000;
+		inventorySlot[]=
+		{
+			"Van_01_Wheel_1_1",
+			"Van_01_Wheel_1_2",
+			"Van_01_Wheel_2_1",
+			"Van_01_Wheel_2_2",
+			"NivaWheel_Spare_1"
+		};
+		rotationFlags=4;
+		repairableWithKits[]={6};
+		repairCosts[]={30};
+		radiusByDamage[]={0,0.36199999,0.30000001,0.30000001,0.99980003,0.25,0.99989998,0.2};
+		radius=0.34999999;
+		width=0.17;
+		tyreOffroadResistance=0.99;
+		tyreGrip=0.99;
+		tyreRollResistance=0.015;
+	};
+	class Van_01_Wheel_ruined: CarWheel
+	{
+		scope=2;
+		displayName="#STR_CfgWheel0";
+		descriptionShort="Wheel Fits Hippy Van";
+		model="\DZ\vehicles\wheeled\van_01\proxy\van_01_wheel_ruined.p3d";
+		weight=10000;
+		inventorySlot[]=
+		{
+			"Van_01_Wheel_1_1",
+			"Van_01_Wheel_1_2",
+			"Van_01_Wheel_2_1",
+			"Van_01_Wheel_2_2",
+			"NivaWheel_Spare_1"
+		};
+		rotationFlags=4;
+		radius=0.2;
+		width=0.20999999;
+		tyreOffroadResistance=0.1;
+		tyreGrip=0.2;
+		tyreRollResistance=0.30000001;
+	};
+	class van_01_door_1_1: CarDoor
 	{
 		scope=2;
 		displayName="#STR_CfgDoor0";
@@ -165,7 +211,7 @@ class cfgvehicles
 			};
 		};
 	};
-	class van_01_door_2_1: HatchbackDoors_Driver
+	class van_01_door_2_1: van_01_door_1_1
 	{
 		displayName="#STR_CfgDoor0";
 		descriptionShort="CoDriverDoor";
@@ -176,7 +222,7 @@ class cfgvehicles
 		};
 		rotationFlags=4;
 	};
-	class van_01_door_2_2: HatchbackDoors_Driver
+	class van_01_door_2_2: van_01_door_1_1
 	{
 		displayName="#STR_CfgDoor0";
 		descriptionShort="BackPassengerDoor";
@@ -396,7 +442,7 @@ class cfgvehicles
 			};
 		};
 	};
-	class  van_01_Base: OffroadHatchback
+	class van_01_Base: Carscript
 	{
 		scope=0;
 		InteractActions[]=
@@ -404,7 +450,6 @@ class cfgvehicles
 			"AT_ANIMATE_SEATS",
 			"AT_GETIN_TRANSPORT"
 		};
-		displayName="Hippy Van";
 		descriptionShort="Sweet Home Alabama";
 		Model="\DZ\vehicles\wheeled\van_01\van_01.p3d";
 		attachments[]=
@@ -419,10 +464,10 @@ class cfgvehicles
 			"van_01_door_2_2",
 			"van_01_trunk_1",
 			"van_01_trunk_2",
-			"NivaWheel_1_1",
-			"NivaWheel_1_2",
-			"NivaWheel_2_1",
-			"NivaWheel_2_2",
+			"Van_01_Wheel_1_1",
+			"Van_01_Wheel_1_2",
+			"Van_01_Wheel_2_1",
+			"Van_01_Wheel_2_2",
 			"NivaWheel_Spare_1"
 		};
 		hiddenSelections[]=
@@ -531,9 +576,9 @@ class cfgvehicles
 			};
 			class Throttle
 			{
-				reactionTime=0.89999998;
-				defaultThrust=0.85000002;
-				gentleThrust=0.69999999;
+				reactionTime=0.99;
+				defaultThrust=0.99;
+				gentleThrust=0.8;
 				turboCoef=4;
 				gentleCoef=0.75;
 			};
@@ -553,7 +598,7 @@ class cfgvehicles
 			drive="DRIVE_AWD";
 			class Engine
 			{
-				torqueCurve[]={650,0,750,40,1400,80,3400,114,5400,95,8000,0};
+				torqueCurve[]={650,50,750,90,1400,130,3400,164,5400,145,8000,0};
 				inertia=0.11;
 				frictionTorque=100;
 				rollingFriction=0.5;
@@ -606,12 +651,12 @@ class cfgvehicles
 						class Left: Left
 						{
 							animDamper="damper_1_1";
-							inventorySlot="NivaWheel_1_1";
+							inventorySlot="Van_01_Wheel_1_1";
 						};
 						class Right: Right
 						{
 							animDamper="damper_2_1";
-							inventorySlot="NivaWheel_1_2";
+							inventorySlot="Van_01_Wheel_2_1";
 						};
 					};
 				};
@@ -656,38 +701,90 @@ class cfgvehicles
 			allowOwnedCargoManipulation=1;
 			openable=0;
 		};
-		class AnimationSources: AnimationSources
+		class AnimationSources
 		{
-			class SeatDriver
+			class DoorsDriver
 			{
 				source="user";
 				initPhase=0;
-				animPeriod=0.80000001;
+				animPeriod=0.5;
 			};
-			class SeatCoDriver
+			class DoorsCoDriver: DoorsDriver
+			{
+			};
+			class DoorsHood: DoorsDriver
+			{
+			};
+			class DoorsTrunk: DoorsDriver
+			{
+			};
+			class HideDestroyed_1_1
 			{
 				source="user";
 				initPhase=0;
-				animPeriod=0.80000001;
+				animPeriod=0.001;
 			};
-			class damper_1_1
+			class HideDestroyed_1_2
 			{
 				source="user";
-				initPhase=0.48570001;
-				animPeriod=1;
+				initPhase=0;
+				animPeriod=0.001;
 			};
-			class damper_2_1: damper_1_1
-			{
-			};
-			class damper_1_2
+			class HideDestroyed_2_1
 			{
 				source="user";
-				initPhase=0.40020001;
-				animPeriod=1;
+				initPhase=0;
+				animPeriod=0.001;
 			};
-			class damper_2_2: damper_1_2
+			class HideDestroyed_2_2
 			{
+				source="user";
+				initPhase=0;
+				animPeriod=0.001;
 			};
+			class AnimHitWheel_1_1
+			{
+				source="Hit";
+				hitpoint="HitWheel_1_1";
+				raw=1;
+			};
+			class AnimHitWheel_1_2: AnimHitWheel_1_1
+			{
+				hitpoint="HitWheel_1_2";
+			};
+			class AnimHitWheel_2_1: AnimHitWheel_1_1
+			{
+				hitpoint="HitWheel_2_1";
+			};
+			class AnimHitWheel_2_2: AnimHitWheel_1_1
+			{
+				hitpoint="HitWheel_2_2";
+			};
+			class HitDoorsHood: AnimHitWheel_1_1
+			{
+				hitpoint="HitDoorsHood";
+			};
+			class HitDoorsTrunk: AnimHitWheel_1_1
+			{
+				hitpoint="HitDoorsTrunk";
+			};
+			class HitDoorsDrivers: AnimHitWheel_1_1
+			{
+				hitpoint="HitDoorsDriver";
+			};
+			class HitDoorsCoDrivers: AnimHitWheel_1_1
+			{
+				hitpoint="HitDoorsCoDriver";
+			};
+			class HitDoorsCargo: AnimHitWheel_1_1
+			{
+				hitpoint="HitDoorsCargo";
+			};
+		};
+		class NoiseCarHorn
+		{
+			strength=30;
+			type="sound";
 		};
 		class DamageSystem
 		{
@@ -813,8 +910,8 @@ class cfgvehicles
 					inventorySlots[]=
 					{
 						"CarRadiator",
-						"NivaWheel_1_1",
-						"NivaWheel_1_2"
+						"Van_01_Wheel_1_1",
+						"Van_01_Wheel_2_1"
 					};
 					inventorySlotsCoefs[]={0.30000001,0.25,0.1,0.1};
 				};
@@ -881,7 +978,7 @@ class cfgvehicles
 					inventorySlots[]=
 					{
 						"Reflector_1_1",
-						"NivaWheel_1_1"
+						"Van_01_Wheel_1_1"
 					};
 					inventorySlotsCoefs[]={1,0.1};
 				};
@@ -903,7 +1000,7 @@ class cfgvehicles
 					inventorySlots[]=
 					{
 						"Reflector_2_1",
-						"NivaWheel_2_1"
+						"Van_01_Wheel_2_1"
 					};
 				};
 				class Back
@@ -977,8 +1074,8 @@ class cfgvehicles
 					inventorySlots[]=
 					{
 						"NivaTrunk",
-						"NivaWheel_1_2",
-						"NivaWheel_2_2"
+						"Van_01_Wheel_1_2",
+						"Van_01_Wheel_2_2"
 					};
 					inventorySlotsCoefs[]={0.40000001,0.1,0.1};
 				};
@@ -1114,7 +1211,7 @@ class cfgvehicles
 					transferToZonesCoefs[]={0.1,0.050000001,0.079999998};
 					inventorySlots[]=
 					{
-						"NivaWheel_1_1",
+						"Van_01_Wheel_1_1",
 						"van_01_door_1_1"
 					};
 					inventorySlotsCoefs[]={0.15000001,0.1,0.1};
@@ -1137,7 +1234,7 @@ class cfgvehicles
 					};
 					inventorySlots[]=
 					{
-						"NivaWheel_2_1",
+						"Van_01_Wheel_2_1",
 						"van_01_door_2_1"
 					};
 				};
@@ -1162,7 +1259,7 @@ class cfgvehicles
 					{
 						"van_01_trunk_1",
 						"van_01_trunk_2",
-						"NivaWheel_1_2",
+						"Van_01_Wheel_1_2",
 						"van_01_door_1_1"
 					};
 					inventorySlotsCoefs[]={0.2,0.1,0.2};
@@ -1188,7 +1285,7 @@ class cfgvehicles
 					{
 						"van_01_trunk_1",
 						"van_01_trunk_2",
-						"NivaWheel_2_2",
+						"Van_01_Wheel_2_2",
 						"van_01_door_2_1"
 					};
 					inventorySlotsCoefs[]={0.2,0.1,0.2};
@@ -1493,63 +1590,20 @@ class cfgvehicles
 				icon="set:dayz_inventory image:cat_vehicle_chassis";
 				attachmentSlots[]=
 				{
-					"NivaWheel_1_1",
-			        "NivaWheel_1_2",
-			        "NivaWheel_2_1",
-			        "NivaWheel_2_2"
+					"Van_01_Wheel_1_1",
+			        "Van_01_Wheel_1_2",
+			        "Van_01_Wheel_2_1",
+			        "Van_01_Wheel_2_2"
 				};
 			};
-			class Sounds
-		    {
-			thrust=0.60000002;
-			thrustTurbo=1;
-			thrustGentle=0.30000001;
-			thrustSmoothCoef=0.02;
-			camposSmoothCoef=0.029999999;
-			soundSetsFilter[]=
-			{
-				"offroad_Engine_Offload_Ext_Rpm1_SoundSet",
-				"offroad_Engine_Offload_Ext_Rpm2_SoundSet",
-				"offroad_Engine_Offload_Ext_Rpm3_SoundSet",
-				"offroad_Engine_Offload_Ext_Rpm4_SoundSet",
-				"offroad_Engine_Offload_Ext_Rpm5_SoundSet",
-				"offroad_Engine_Ext_Rpm0_SoundSet",
-				"offroad_Engine_Ext_Rpm1_SoundSet",
-				"offroad_Engine_Ext_Rpm2_SoundSet",
-				"offroad_Engine_Ext_Rpm3_SoundSet",
-				"offroad_Engine_Ext_Rpm4_SoundSet",
-				"offroad_Engine_Ext_Rpm5_SoundSet",
-				"offroad_Engine_Ext_Broken_SoundSet",
-				"offroad_Tires_rock_slow_Ext_SoundSet",
-				"offroad_Tires_rock_fast_Ext_SoundSet",
-				"offroad_Tires_grass_slow_Ext_SoundSet",
-				"offroad_Tires_grass_fast_Ext_SoundSet",
-				"offroad_Tires_gravel_slow_Ext_SoundSet",
-				"offroad_Tires_gravel_fast_Ext_SoundSet",
-				"offroad_Tires_gravel_dust_fast_Ext_SoundSet",
-				"offroad_Tires_asphalt_slow_Ext_SoundSet",
-				"offroad_Tires_asphalt_fast_Ext_SoundSet",
-				"offroad_Tires_water_slow_Ext_SoundSet",
-				"offroad_Tires_water_fast_Ext_SoundSet",
-				"Offroad_skid_dirt_SoundSet",
-				"offroad_dirt_turn_SoundSet",
-				"offroad_Rain_Ext_SoundSet",
-				"offroad_damper_left_SoundSet",
-				"offroad_damper_right_SoundSet"
-			};
-			soundSetsInt[]=
-			{
-				"Offroad_Tires_Asphalt_Fast_General_Int_SoundSet",
-				"Offroad_Wind_SoundSet"
-			};
-		};
 		};
 	};
-	class Van_01: Van_01_Base
+	class Van_01: van_01_Base
 	{
 		scope=2;
 		InteractActions[]={1048,1035};
-		displayname="s1203";
+		displayname="Hippy Van";
+		descriptionShort="Sweet Home Alabama";
 		Model="\DZ\vehicles\wheeled\van_01\van_01.p3d";
 		maxspeed=60;
 		attachments[]=
@@ -1564,10 +1618,10 @@ class cfgvehicles
 			"van_01_door_2_2",
 			"van_01_trunk_1",
 			"van_01_trunk_2",
-			"NivaWheel_1_1",
-			"NivaWheel_1_2",
-			"NivaWheel_2_1",
-			"NivaWheel_2_2",
+			"Van_01_Wheel_1_1",
+			"Van_01_Wheel_1_2",
+			"Van_01_Wheel_2_1",
+			"Van_01_Wheel_2_2",
 			"NivaWheel_Spare_1"
 		};
 		class Sounds
@@ -1615,7 +1669,7 @@ class cfgvehicles
 			};
 		};
 	};
-};
+};	
 	
 class CfgNonAIVehicles
 {
@@ -1670,10 +1724,10 @@ class CfgNonAIVehicles
 		model="DZ\vehicles\wheeled\OffroadHatchback\proxy\nivaWheel.p3d";
 		inventorySlot[]=
 		{
-			"NivaWheel_1_1",
-			"NivaWheel_1_2",
-			"NivaWheel_2_1",
-			"NivaWheel_2_2",
+			"Van_01_Wheel_1_1",
+			"Van_01_Wheel_1_2",
+			"Van_01_Wheel_2_1",
+			"Van_01_Wheel_2_2",
 			"NivaWheel_Spare_1"
 		};
 	};
@@ -1682,59 +1736,11 @@ class CfgNonAIVehicles
 		model="DZ\vehicles\wheeled\OffroadHatchback\proxy\nivaWheel_destroyed.p3d";
 		inventorySlot[]=
 		{
-			"NivaWheel_1_1",
-			"NivaWheel_1_2",
-			"NivaWheel_2_1",
-			"NivaWheel_2_2",
+			"Van_01_Wheel_1_1",
+			"Van_01_Wheel_1_2",
+			"Van_01_Wheel_2_1",
+			"Van_01_Wheel_2_2",
 			"NivaWheel_Spare_1"
 		};
-	};
-	class ProxyPart
-	{
-		scope=2;
-		simulation="ProxyInventory";
-		model="";
-		inventorySlot="";
-		autocenter=0;
-		animated=0;
-		shadow=1;
-		reversed=1;
-	};
-	class ProxyBattery_truck: ProxyPart
-	{
-		model="DZ\vehicles\parts\battery_truck.p3d";
-		inventorySlot[]=
-		{
-			"TruckBattery",
-			"LargeBattery"
-		};
-	};
-	class ProxyBattery_Car: ProxyPart
-	{
-		model="DZ\vehicles\parts\battery_car.p3d";
-		inventorySlot[]=
-		{
-			"CarBattery",
-			"LargeBattery"
-		};
-	};
-	class Proxysparkplug: ProxyPart
-	{
-		model="DZ\vehicles\parts\sparkplug.p3d";
-		inventorySlot="SparkPlug";
-	};
-	class ProxyReplacement_Headlight: ProxyPart
-	{
-		model="DZ\vehicles\parts\Replacement_Headlight.p3d";
-		inventorySlot[]=
-		{
-			"Reflector_1_1",
-			"Reflector_2_1"
-		};
-	};
-	class ProxyRadiator_car: ProxyPart
-	{
-		model="DZ\vehicles\parts\Radiator_car.p3d";
-		inventorySlot="CarRadiator";
 	};
 };
