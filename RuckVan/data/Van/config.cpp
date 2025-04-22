@@ -66,6 +66,55 @@ class cfgvehicles
 		tyreOffroadResistance=0.99;
 		tyreGrip=0.99;
 		tyreRollResistance=0.015;
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints=200;
+					healthLevels[]=
+					{
+						
+						{
+							1,
+							{}
+						},
+						
+						{
+							0.69999999,
+							{}
+						},
+						
+						{
+							0.5,
+							{}
+						},
+						
+						{
+							0.30000001,
+							{}
+						},
+						
+						{
+							0,
+							{}
+						}
+					};
+				};
+			};
+		};
+		class AnimEvents
+		{
+			class SoundWeapon
+			{
+				class drop
+				{
+					soundset="hatchbackwheel_drop_SoundSet";
+					id=898;
+				};
+			};
+		};
 	};
 	class Van_01_Wheel_ruined: CarWheel
 	{
@@ -326,7 +375,7 @@ class cfgvehicles
 	class van_01_trunk_2: CarDoor
 	{
 		scope=2;
-		displayName="Van Trunk 1";
+		displayName="Van Tail Gate";
 		descriptionShort="$STR_HatchbackHood1";
 		model="\DZ\vehicles\wheeled\van_01\proxy\van_01_trunk_2.p3d";
 		weight=15000;
@@ -513,16 +562,16 @@ class cfgvehicles
 			"DZ\vehicles\wheeled\van_01\data\van_01_body.rvmat",
 			"DZ\vehicles\wheeled\van_01\data\van_01_body.rvmat"
 		};
-		dashboardMatOn="dz\vehicles\wheeled\offroadhatchback\data\niva_dashboard_light.rvmat";
+		dashboardMatOn="DZ\vehicles\wheeled\van_01\data\van_01_int_panel.rvmat";
 		dashboardMatOff="dz\vehicles\wheeled\offroadhatchback\data\niva_dashboard.rvmat";
 		frontReflectorMatOn="dz\vehicles\wheeled\offroadhatchback\data\niva_lights.rvmat";
-		frontReflectorMatOff="dz\vehicles\wheeled\offroadhatchback\data\green\niva_body.rvmat";
-		brakeReflectorMatOn="dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights_e.rvmat";
-		brakeReflectorMatOff="dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat";
-		ReverseReflectorMatOn="dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights_e.rvmat";
-		ReverseReflectorMatOff="dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat";
-		TailReflectorMatOn="dz\vehicles\wheeled\offroadhatchback\data\OffroadHatchback_lights_e.rvmat";
-		TailReflectorMatOff="dz\vehicles\wheeled\offroadhatchback\data\OffroadHatchback_lights.rvmat";
+		frontReflectorMatOff="DZ\vehicles\wheeled\van_01\data\van_01_body.rvmat";
+		brakeReflectorMatOn="DZ\vehicles\wheeled\van_01\data\van_01_body.rvmat";
+		brakeReflectorMatOff="DZ\vehicles\wheeled\van_01\data\van_01_body.rvmat";
+		ReverseReflectorMatOn="DZ\vehicles\wheeled\van_01\data\van_01_body.rvmat";
+		ReverseReflectorMatOff="DZ\vehicles\wheeled\van_01\data\van_01_body.rvmat";
+		TailReflectorMatOn="DZ\vehicles\wheeled\van_01\data\van_01_body.rvmat";
+		TailReflectorMatOff="DZ\vehicles\wheeled\van_01\data\van_01_body.rvmat";
 		fuelCapacity=42;
 		fuelConsumption=11;
 		class Crew
@@ -547,22 +596,22 @@ class cfgvehicles
 			{
 				actionSel="seat_cargo1";
 				proxyPos="crewCargo1";
-				getInPos="pos cargo 3";
-				getInDir="pos cargo dir 3";
+				getInPos="pos cargo 1";
+				getInDir="pos cargo dir 1";
 			};
 			class Cargo2
 			{
 				actionSel="seat_cargo2";
 				proxyPos="crewCargo2";
-				getInPos="pos cargo 3";
-				getInDir="pos cargo dir 3";
+				getInPos="pos cargo 1";
+				getInDir="pos cargo dir 1";
 			};
 			class Cargo3
 			{
 				actionSel="seat_cargo3";
 				proxyPos="crewCargo3";
-				getInPos="pos cargo 3";
-				getInDir="pos cargo dir 3";
+				getInPos="pos cargo 1";
+				getInDir="pos cargo dir 1";
 			};
 		};
 		class SimulationModule: SimulationModule
