@@ -4,6 +4,5 @@ modded class ActionConstructor
     {
         super.RegisterActions(actions);
         actions.Insert(ActionRuckLootBody);
-		actions.Insert(ActionRuckLootBodyZombie);
     }
 }
