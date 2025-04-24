@@ -36,6 +36,7 @@ class CfgMods
 			"World",
 			"Mission"
 		};
+		inputs="RuckModPack\Data\RuckBudz\data\inputs.xml";
 		class defs
 		{
 			class gameScriptModule

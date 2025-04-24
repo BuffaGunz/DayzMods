@@ -6,8 +6,9 @@ class CfgPatches
 		{
 			"Ruger1022",
 			"Beast556",
-			"MKIJ",
-			"ij70"
+			"MK_V",
+			"Colt1911",
+			"1911_Engraved"
 		};
 		weapons[]={};
 		requiredVersion=0.1;
@@ -17,7 +18,8 @@ class CfgPatches
 			"DZ_Sounds_Weapons",
 			"DZ_Weapons_Firearms",
 			"DZ_Weapons_Firearms_Ruger1022",
-			"DZ_Pistols_pmm"
+			"DZ_Pistols_1911",
+			"DZ_Weapons_Magazines"
 		};
 	};
 };
@@ -211,93 +213,45 @@ class cfgWeapons
 		};
 		weaponStateAnim="dz\anims\anm\player\reloads\Ruger1022\w_Ruger1022_states.anm";
 	};
-	class MakarovIJ70_Base;
-	class MKIJ: MakarovIJ70_Base
+	class OpticsInfoPistol;
+	class Pistol_Base;
+	class Colt1911_Base: Pistol_Base
+	{
+	};	
+	class MK_V: Colt1911_Base
 	{
 		scope=2;
-		displayName="MKIJ";
-		descriptionShort="integrally suppressed pistol chambered in .380";
-		model="\RuckModPack\Data\Beast\RuckPistol.p3d";
-		itemSize[]={4,2};
-		weight=1000;
+		displayName="MK V";
+		descriptionShort="Integrally suppressed pistol chambered in 45ACP";
+		model="\RuckModPack\Data\Beast\data\Mk_V.p3d";
+		attachments[]={};
+		weight=1106;
 		absorbency=0;
 		repairableWithKits[]={1};
 		repairCosts[]={25};
-		PPDOFProperties[]={1,0.5,10,280,4,10};
+		PPDOFProperties[]={1,0.89999998,10,250,4,10};
 		WeaponLength=0.33000001;
-		ShoulderDistance=0.38;
-		barrelArmor=4.5;
+		ShoulderDistance=0.40000001;
+		barrelArmor=1.523;
 		initSpeedMultiplier=1;
 		chamberSize=1;
 		chamberedRound="";
 		magazines[]=
 		{
-			"Mag_IJ70_8Rnd"
+			"Mag_1911_7Rnd",
+			"Mag_Mk_V_15Rnd"
 		};
 		chamberableFrom[]=
 		{
-			"Ammo_380"
+			"Ammo_45ACP"
 		};
+		magazineSwitchTime=0.23999999;
 		ejectType=1;
 		recoilModifier[]={1,1,1};
-		swayModifier[]={1,1,0.69999999};
-		class DamageSystem
+		swayModifier[]={1.3,1.3,0.80000001};
+		hiddenSelections[]=
 		{
-			class GlobalHealth
-			{
-				class Health
-				{
-					hitpoints=200;
-					healthLevels[]=
-					{
-						
-						{
-							1,
-							
-							{
-								"DZ\weapons\pistols\pmm\data\pmm.rvmat",
-								"DZ\weapons\attachments\muzzle\data\suppressor_pb6p9.rvmat"
-							}
-						},
-						
-						{
-							0.69999999,
-							
-							{
-								"DZ\weapons\pistols\pmm\data\pmm.rvmat",
-								"DZ\weapons\attachments\muzzle\data\suppressor_pb6p9.rvmat"
-							}
-						},
-						
-						{
-							0.5,
-							
-							{
-								"DZ\weapons\pistols\pmm\data\pmm_damage.rvmat",
-								"DZ\weapons\attachments\muzzle\data\suppressor_pb6p9_damage.rvmat"
-							}
-						},
-						
-						{
-							0.30000001,
-							
-							{
-								"DZ\weapons\pistols\pmm\data\pmm_damage.rvmat",
-								"DZ\weapons\attachments\muzzle\data\suppressor_pb6p9_damage.rvmat"
-							}
-						},
-						
-						{
-							0,
-							
-							{
-								"DZ\weapons\pistols\pmm\data\pmm_destruct.rvmat",
-								"DZ\weapons\attachments\muzzle\data\suppressor_pb6p9_destruct.rvmat"
-							}
-						}
-					};
-				};
-			};
+			"camoGround"
 		};
 		class NoiseShoot
 		{
@@ -312,22 +266,24 @@ class cfgWeapons
 		{
 			soundSetShot[]=
 			{
-				"Makarov_silencerPro_SoundSet",
-				"Makarov_silencerTail_SoundSet",
-				"Makarov_silencerInteriorTail_SoundSet"
+				"Colt1911_silencerPro_SoundSet",
+				"Colt1911_silencerTail_SoundSet",
+				"Colt1911_silencerInteriorTail_SoundSet"
 			};
 			soundSetShotExt[]=
 			{
 				
 				{
-					"Makarov_silencerPro_SoundSet",
-					"Makarov_silencerTail_SoundSet",
-					"Makarov_silencerInteriorTail_SoundSet"
+					"Colt1911_silencerPro_SoundSet",
+					"Colt1911_silencerTail_SoundSet",
+					"Colt1911_silencerInteriorTail_SoundSet"
 				}
 			};
+			envShootingDecrease=0.050000001;
+			envShootingDecreaseExt[]={0.050000001,0.050000001};
 			reloadTime=0.13;
-			recoil="recoil_ij70";
-			recoilProne="recoil_if70_prone";
+			recoil="recoil_1911";
+			recoilProne="recoil_1911_prone";
 			dispersion=0.0060000001;
 			magazineSlot="magazine";
 		};
@@ -340,6 +296,64 @@ class cfgWeapons
 			distanceZoomMin=100;
 			distanceZoomMax=100;
 		};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints=200;
+					healthLevels[]=
+					{
+						
+						{
+							1,
+							
+							{
+								"DZ\weapons\pistols\1911\data\1911.rvmat",
+								"DZ\weapons\attachments\muzzle\data\suppressor_pb6p9.rvmat"
+							}
+						},
+						
+						{
+							0.69999999,
+							
+							{
+								"DZ\weapons\pistols\1911\data\1911.rvmat",
+								"DZ\weapons\attachments\muzzle\data\suppressor_pb6p9.rvmat"
+							}
+						},
+						
+						{
+							0.5,
+							
+							{
+								"DZ\weapons\pistols\1911\data\1911_damage.rvmat",
+								"DZ\weapons\attachments\muzzle\data\suppressor_pb6p9_damage.rvmat"
+							}
+						},
+						
+						{
+							0.30000001,
+							
+							{
+								"DZ\weapons\pistols\1911\data\1911_damage.rvmat",
+								"DZ\weapons\attachments\muzzle\data\suppressor_pb6p9_damage.rvmat"
+							}
+						},
+						
+						{
+							0,
+							
+							{
+								"DZ\weapons\pistols\1911\data\1911_destruct.rvmat",
+								"DZ\weapons\attachments\muzzle\data\suppressor_pb6p9_destruct.rvmat"
+							}
+						}
+					};
+				};
+			};
+		};
 		class Particles
 		{
 			class OnFire
@@ -350,10 +364,8 @@ class cfgWeapons
 				};
 				class MuzzleFlash
 				{
-					overrideParticle="weapon_shot_fnx_01";
-					ignoreIfSuppressed=1;
-					illuminateWorld=1;
-					positionOffset[]={0,0,0};
+					overrideParticle="weapon_shot_akm_02";
+					onlyWithinHealthLabel[]={0,3};
 				};
 			};
 			class OnOverheating
@@ -384,6 +396,171 @@ class cfgWeapons
 				};
 			};
 		};
-		weaponStateAnim="dz\anims\anm\player\reloads\IJ70\w_IJ70_states.anm";
-	};	
+		weaponStateAnim="dz\anims\anm\player\reloads\1911\w_1911_states.anm";
+	};
+};
+
+class CfgMagazines
+{	
+	class Mag_1911_7Rnd;
+    class Mag_Mk_V_15Rnd: Mag_1911_7Rnd
+	{
+		scope=2;
+		displayName="Mag_Mk_V_15Rnd";
+		descriptionShort="Holds upto 15Rnd of 45acp";
+		model="\RuckModPack\Data\Beast\data\Mk_V_Mag_15Rnd.p3d";
+		weight=68;
+		weightPerQuantityUnit=12;
+		itemSize[]={1,2};
+		count=15;
+		ammo="Bullet_45ACP";
+		ammoItems[]=
+		{
+			"Ammo_45ACP"
+		};
+		tracersEvery=0;
+		mass=10;
+		hiddenSelections[]=
+		{
+			"camo"
+		};
+		hiddenSelectionsTextures[]=
+		{
+			"dz\weapons\attachments\data\1911_mag_co.paa"
+		};
+		hiddenSelectionsMaterials[]=
+		{
+			"dz\weapons\attachments\data\1911.rvmat"
+		};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints=100;
+					healthLevels[]=
+					{
+						
+						{
+							1,
+							
+							{
+								"DZ\weapons\attachments\data\1911.rvmat"
+							}
+						},
+						
+						{
+							0.69999999,
+							
+							{
+								"DZ\weapons\attachments\data\1911.rvmat"
+							}
+						},
+						
+						{
+							0.5,
+							
+							{
+								"DZ\weapons\attachments\data\1911_damage.rvmat"
+							}
+						},
+						
+						{
+							0.30000001,
+							
+							{
+								"DZ\weapons\attachments\data\1911_damage.rvmat"
+							}
+						},
+						
+						{
+							0,
+							
+							{
+								"DZ\weapons\attachments\data\1911_destruct.rvmat"
+							}
+						}
+					};
+				};
+			};
+		};
+		class AnimEvents
+		{
+			class SoundWeapon
+			{
+				class MagRifle_fill_in
+				{
+					soundSet="MagRifle_fill_in_SoundSet";
+					id=1;
+				};
+				class MagRifle_fill_loop
+				{
+					soundSet="MagRifle_fill_loop_SoundSet";
+					id=2;
+				};
+				class MagRifle_fill_out
+				{
+					soundSet="MagRifle_fill_out_SoundSet";
+					id=3;
+				};
+				class MagRifle_empty_in
+				{
+					soundSet="MagRifle_empty_in_SoundSet";
+					id=4;
+				};
+				class MagRifle_empty_loop
+				{
+					soundSet="MagRifle_empty_loop_SoundSet";
+					id=5;
+				};
+				class MagRifle_empty_out
+				{
+					soundSet="MagRifle_empty_out_SoundSet";
+					id=6;
+				};
+				class MagPistol_fill_in
+				{
+					soundSet="MagPistol_fill_in_SoundSet";
+					id=7;
+				};
+				class MagPistol_fill_loop
+				{
+					soundSet="MagPistol_fill_loop_SoundSet";
+					id=8;
+				};
+				class MagPistol_fill_out
+				{
+					soundSet="MagPistol_fill_out_SoundSet";
+					id=9;
+				};
+				class MagPistol_empty_in
+				{
+					soundSet="MagPistol_empty_in_SoundSet";
+					id=10;
+				};
+				class MagPistol_empty_loop
+				{
+					soundSet="MagPistol_empty_loop_SoundSet";
+					id=11;
+				};
+				class MagPistol_empty_out
+				{
+					soundSet="MagPistol_empty_out_SoundSet";
+					id=12;
+				};
+			};
+		};
+	};
+};
+
+class CfgNonAIVehicles
+{
+	class ProxyAttachment;
+	class ProxyMk_V: ProxyAttachment
+	{
+		scope=2;
+		inventorySlot="pistol";
+		model="\RuckModPack\Data\Beast\data\Stealth.p3d";
+	};
 };
