@@ -5,18 +5,32 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Gear_Containers"};
+		requiredAddons[] =
+		{
+			"DZ_Data",
+			"DZ_Gear_Containers",
+			"DZ_Gear_Medical",
+			"DZ_Gear_Drinks",
+			"DZ_Gear_Camping"
+		};
 	};
 };
+
+class CfgSlots
+{
+	class Slot_Purifier
+	{
+		name="Purifier";
+		displayName="Water Purification";
+		ghostIcon="";
+	};
+};	
+	
 class CfgVehicles
 {
-class Container_Base;
-class SmallProtectorCase: Container_Base
+    class Container_Base;
+    class SmallProtectorCase: Container_Base
 	{
-		scope=2;
-		displayName="$STR_CfgVehicles_SmallProtectorCase0";
-		descriptionShort="$STR_CfgVehicles_SmallProtectorCase1";
-		model="\dz\gear\containers\Protector_Case.p3d";
 		attachments[]=
 		{
 			"Body",
@@ -26,103 +40,74 @@ class SmallProtectorCase: Container_Base
 			"Legs",
 			"Feet"
 		};
-		rotationFlags=17;
-		weight=980;
-		itemSize[]={3,4};
-		itemsCargoSize[]={4,5};
-		canBeDigged=1;
-		isMeleeWeapon=1;
-		allowOwnedCargoManipulation=1;
-		randomQuantity=2;
-		repairableWithKits[]={8};
-		repairCosts[]={25};
-		class DamageSystem
+	};
+	class FirstAidKit: Container_Base
+	{
+		itemsCargoSize[]={5,5};
+		inventorySlot[]=
 		{
-			class GlobalHealth
-			{
-				class Health
-				{
-					hitpoints=750;
-					healthLevels[]=
-					{
-						
-						{
-							1,
-							
-							{
-								"DZ\gear\containers\data\Protector_Case.rvmat"
-							}
-						},
-						
-						{
-							0.69999999,
-							
-							{
-								"DZ\gear\containers\data\Protector_Case.rvmat"
-							}
-						},
-						
-						{
-							0.5,
-							
-							{
-								"DZ\gear\containers\data\Protector_Case_damage.rvmat"
-							}
-						},
-						
-						{
-							0.30000001,
-							
-							{
-								"DZ\gear\containers\data\Protector_Case_damage.rvmat"
-							}
-						},
-						
-						{
-							0,
-							
-							{
-								"DZ\gear\containers\data\Protector_Case_destruct.rvmat"
-							}
-						}
-					};
-				};
-			};
-			class GlobalArmor
-			{
-				class FragGrenade
-				{
-					class Health
-					{
-						damage=8;
-					};
-					class Blood
-					{
-						damage=8;
-					};
-					class Shock
-					{
-						damage=8;
-					};
-				};
-			};
+			"Belt_Left",
+			"Backpack_1"
 		};
-		soundImpactType="plastic";
-		class AnimEvents
+		attachments[]=
 		{
-			class SoundWeapon
-			{
-				class pickUpItem
-				{
-					soundSet="smallprotectorcase_pickup_SoundSet";
-					id=797;
-				};
-				class drop
-				{
-					soundset="smallprotectorcase_drop_SoundSet";
-					id=898;
-				};
-			};
+			"MedicalBandage",
+			"Disinfectant"
+		};
+	};	
+	class WoodenCrate: Container_Base
+	{
+		attachments[]=
+		{
+			"Body",
+			"Gloves",
+			"Headgear",
+			"Mask",
+			"Legs",
+			"Feet",
+			"Shoulder",
+			"Shoulder",
+			"Back",
+			"Vest"
+		};
+	};	
+	class SeaChest: Container_Base
+	{
+		attachments[]=
+		{
+			"Body",
+			"Gloves",
+			"Headgear",
+			"Mask",
+			"Legs",
+			"Feet",
+			"Shoulder",
+			"Shoulder",
+			"Back",
+			"Vest"
+		};
+	};	
+	class Bottle_Base;
+	class Canteen: Bottle_Base
+	{
+		attachments[]=
+		{
+			"Purifier"
+		};
+	};
+	class Edible_Base;
+	class PurificationTablets: Edible_Base
+	{
+		inventorySlot[]=
+		{
+			"Purifier"
+		};
+	};
+	class ChelatingTablets: Edible_Base
+	{
+		inventorySlot[]=
+		{
+			"Purifier"
 		};
 	};
 };	

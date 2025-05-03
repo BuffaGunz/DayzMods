@@ -30,13 +30,13 @@ class CfgMods
 		version="0.3";
 		extra=0;
 		type="mod";
+		inputs = "RuckModPack/Data/Inputs.xml";
 		dependencies[]=
 		{
 			"Game",
 			"World",
 			"Mission"
 		};
-		inputs="RuckModPack\Data\RuckBudz\data\inputs.xml";
 		class defs
 		{
 			class gameScriptModule

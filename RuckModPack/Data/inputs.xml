@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<modded_inputs>
+	<inputs>
+		<actions>
+			<input name="UARuckBudzToggle" loc="RuckBudz_TOGGLE_KEYBIND"/>
+			<input name="UARuckAutorunToggle" loc="Autorun Toggle" />
+		</actions>
+	</inputs>
+	<preset>
+		<input name="UARuckBudzToggle">
+			<btn name="kN"/>
+		</input>
+		
+		<input name="UARuckAutorunToggle">
+            <btn name="kAdd" />
+        </input>
+	</preset>
+</modded_inputs>

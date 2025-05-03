@@ -1,6 +1,6 @@
 class CfgPatches
 {
-	class RuckBait_Bait
+	class RuckModPack_Bait
 	{
 		units[] = {};
 		weapons[] = {};

@@ -5,7 +5,13 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Vehicles_Wheeled","DZ_Vehicles_Water"};
+		requiredAddons[] = 
+		{
+			"DZ_Data",
+			"DZ_Vehicles_Wheeled",
+			"DZ_Vehicles_Water",
+			"DZ_Vehicles_Parts"
+		};
 	};
 };
 class CfgSlots
@@ -74,6 +80,11 @@ class CfgVehicles
 			"TireRepairKit_2"
 		};
 	};
+	class CarRadiator: Inventory_Base
+	{
+		repairableWithKits[]={8};
+		repairCosts[]={60};
+	};	
     class CarScript;
     class OffroadHatchback: CarScript
 	{
@@ -110,6 +121,19 @@ class CfgVehicles
 			"TireRepairKit",
 			"Camonet"
 		};
+		class DamageSystem
+		{
+			class DamageZones
+			{
+				class Engine
+				{
+					class Health
+					{
+						hitpoints=3000;
+					};
+				};
+			};
+		};	
 		class SimulationModule: SimulationModule
 		{
 			class Throttle
@@ -203,6 +227,19 @@ class CfgVehicles
 			"TireRepairKit",
 			"Camonet"
 		};
+		class DamageSystem
+		{
+			class DamageZones
+			{
+				class Engine
+				{
+					class Health
+					{
+						hitpoints=3000;
+					};
+				};
+			};
+		};	
 		class SimulationModule: SimulationModule
 		{
 			class Throttle
@@ -296,6 +333,19 @@ class CfgVehicles
 			"TireRepairKit",
 			"Camonet"
 		};
+		class DamageSystem
+		{
+			class DamageZones
+			{
+				class Engine
+				{
+					class Health
+					{
+						hitpoints=3000;
+					};
+				};
+			};
+		};	
 		class SimulationModule: SimulationModule
 		{
 			class Throttle
@@ -389,6 +439,19 @@ class CfgVehicles
 			"TireRepairKit",
 			"Camonet"
 		};
+		class DamageSystem
+		{
+			class DamageZones
+			{
+				class Engine
+				{
+					class Health
+					{
+						hitpoints=3000;
+					};
+				};
+			};
+		};	
 		class SimulationModule: SimulationModule
 		{
 			class Throttle
