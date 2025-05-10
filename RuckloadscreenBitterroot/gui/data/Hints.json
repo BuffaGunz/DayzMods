@@ -1,0 +1,38 @@
+[
+	{
+		"m_Headline": "Discord",
+		"m_Description": "Join our Discord for support and more server info, click on Discord button in game."
+	},
+	{
+		"m_Headline": "Zombie Skinning",
+		"m_Description": "Skinning a zombie can gives you access to guts, meat and bones all 3 can be used for fishing."
+	},	
+	{
+		"m_Headline": "Freinds or Foe?",
+		"m_Description": "Its a harsh world out there and resources are hard to come by be careful who you trust."
+	},
+	{
+		"m_Headline": "Universal Weapon Parts",
+		"m_Description": "Most scopes are universal and most same type ammo mags compatible."
+	},
+	{
+		"m_Headline": "Combat Log",
+		"m_Description": "Combat Logging is strictly prohibited. Survivors must stay on the server for at least 5 minutes after combat."
+	},
+	{
+		"m_Headline": "Shoot for the sky",
+		"m_Description": "See a heli flying its possible to shoot it down and take all the loot for yourself."
+	},
+	{
+		"m_Headline": "Base Building",
+		"m_Description": "Base building is vanilla with expection of Zens combination locks. (Turns the combination lock into a codelock) Raid anytime no glitching or watchtower raiding."
+	},
+	{
+		"m_Headline": "No Build Zones",
+		"m_Description": "No building in military zones, bunkers or hospitals If found they will be deleted without warning."
+	},
+	{
+		"m_Headline": "Universal Wheels",
+		"m_Description": "The olga, sarka, ada and gunter can all fit eachothers wheels might not look the best but will get you back on the road faster."
+	}
+]
