@@ -15,10 +15,23 @@ class CfgPatches
 class CfgVehicles
 {
 	class Inventory_Base;
-	class Paper: Inventory_Base
+	class Paper : Inventory_Base
 	{
-		varStackMax=10;
-		canBeSplit=1;
+		canBeSplit = 1;
+		varQuantityInit = 1;
+		varQuantityMin = 0;
+		varQuantityMax = 5;
+		varStackMax = 5;
+		varQuantityDestroyOnMin = 1;
+	};
+	class PunchedCard : Paper
+	{
+		canBeSplit = 0;
+		varQuantityInit = 1;
+		varQuantityMin = 0;
+		varQuantityMax = 1;
+		varStackMax = 1;
+		varQuantityDestroyOnMin = 1;
 	};
 	class Firewood: Inventory_Base
 	{
