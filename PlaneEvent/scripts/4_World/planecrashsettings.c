@@ -9,12 +9,21 @@ class PlaneCrashSettings
     ref array<vector> CustomCrashSites;
     ref array<string> CustomLootItems;
 
+    int ZombieCount = 15; // Max 40
+    int MaxLootItems = 15; //Max30
+    bool EnableCrashNotification = false;
+
+    bool EnableCustomZombieTypes = false;
+    ref array<string> CustomZombieTypes;
+
     private static ref PlaneCrashSettings m_Instance;
 
     void PlaneCrashSettings()
     {
         CustomCrashSites = new array<vector>();
         CustomLootItems = new array<string>();
+
+        CustomZombieTypes = new array<string>();
     }
 
     static PlaneCrashSettings Get()
@@ -37,17 +46,12 @@ class PlaneCrashSettings
         if (FileExist(path))
         {
             JsonFileLoader<PlaneCrashSettings>.JsonLoadFile(path, cfg);
-            Print("[PlaneCrash] Config loaded from file.");
-
-            if (!cfg.CustomCrashSites)
-                cfg.CustomCrashSites = new array<vector>();
-            if (!cfg.CustomLootItems)
-                cfg.CustomLootItems = new array<string>();
+            Print("[PlaneCrash] Config loaded.");
         }
         else
         {
             JsonFileLoader<PlaneCrashSettings>.JsonSaveFile(path, cfg);
-            Print("[PlaneCrash] No config found. Created default PlaneCrashSettings.json.");
+            Print("[PlaneCrash] Config file created.");
         }
 
         m_Instance = cfg;

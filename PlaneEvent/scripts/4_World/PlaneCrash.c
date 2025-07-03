@@ -4,6 +4,18 @@ class PlaneCrash extends CrashBase
 	static ref map<EntityAI, int> m_ContainerTimers = new map<EntityAI, int>();
 	static const int MAX_CONTAINER_LIFETIME = 3600000; // 1 hour
 	static const int CONTAINER_CHECK_INTERVAL = 300000; // 5 minutes
+	
+	static void NotifyCrashEvent(PlayerBase player, string msg)
+	{
+		if (!PlaneCrashSettings.Get().EnableCrashNotification)
+			return;
+
+	#ifdef EXPANSIONMOD
+		ExpansionNotification("Crash Event", msg, "set:expansion_iconset image:icon_airdrop").Create();
+	#else
+		MessageToPlayer(player, msg);
+	#endif
+	}
 
 	override string GetSoundSet()
 	{
@@ -25,7 +37,7 @@ class PlaneCrash extends CrashBase
 	override void EEInit()
 	{
 		super.EEInit();
-
+	
 		if (!GetGame().IsDedicatedServer())
 		{
 			m_ParticleEfx = Particle.PlayOnObject(ParticleList.SMOKING_HELI_WRECK, this, Vector(4.7, -2.4, -2));
@@ -107,7 +119,7 @@ class PlaneCrash extends CrashBase
             {
                 if (!obj) continue;
                 string type = obj.GetType();
-                if (type.Contains("House") || type.Contains("Land_Container") || type.Contains("Wreck"))
+                if (type.Contains("House") || type.Contains("Land_Container") || type.Contains("Wreck") || type.Contains("Fence") || type.Contains("Wall") || type.Contains("Rail") || type.Contains("Roadblock") || type.Contains("Barrier")|| type.Contains("tree") || type.Contains("bldr_tree") || type.Contains("t_") || type.Contains("picea") || type.Contains("quercus") || type.Contains("fagus") || type.Contains("conifer"))
                 {
                     blocked = true;
                     break;
@@ -126,12 +138,11 @@ class PlaneCrash extends CrashBase
 	static void SpawnSite()
 	{
 		vector crashPos = FindValidCrashSite();
-        crashPos[1] = crashPos[1] + 5.0;
 
+		// Prevent duplicate spawn
 		array<Object> nearby = {};
 		array<CargoBase> dummy = {};
 		GetGame().GetObjectsAtPosition(crashPos, 100.0, nearby, dummy);
-
 		foreach (Object obj : nearby)
 		{
 			if (!obj || obj.GetType() == "PlaneCrash" || obj.GetType().IndexOf("Land_ContainerLocked") != -1)
@@ -141,30 +152,31 @@ class PlaneCrash extends CrashBase
 			}
 		}
 
+		// --- Spawn wreck ---
 		EntityAI wreck = EntityAI.Cast(GetGame().CreateObject("PlaneCrash", crashPos));
-		wreck.SetAffectPathgraph(true, true);
 		if (!wreck) return;
 
-		vector up = GetGame().SurfaceGetNormal(crashPos[0], crashPos[2]);
-		vector forward = Vector(0, 0, -1);
-		vector right = vector.Direction(up, forward).Normalized();
-		forward = vector.Direction(right, up).Normalized();
+		wreck.PlaceOnSurface();
 
-		float yaw = Math.Atan2(forward[0], forward[2]) * Math.RAD2DEG;
-		float pitch = (-Math.Asin(forward[1]) * Math.RAD2DEG) + 70.0;
-		vector orientation = Vector(pitch, yaw, 0);
-		wreck.SetOrientation(orientation);
+		// Apply navmesh to wreck
+		wreck.SetAffectPathgraph(true, true);
+		wreck.SetSynchDirty();
+		GetGame().UpdatePathgraphRegionByObject(wreck);
+		Print("[PlaneCrash] Wreck placed and navmesh updated.");
 
+		// --- Send notification if enabled ---
+		if (PlaneCrashSettings.Get().EnableCrashNotification)
+		{
+			SendCrashNotification(wreck.GetPosition());
+		}
+
+		// --- Play sound ---
 		#ifdef SERVER
-		Param3<bool, vector, int> playSound = new Param3<bool, vector, int>(true, wreck.GetPosition(), "HeliCrash_Distant_SoundSet".Hash());
-		GetGame().RPCSingleParam(null, ERPCs.RPC_SOUND_HELICRASH, playSound, true);
+			Param3<bool, vector, int> playSound = new Param3<bool, vector, int>(true, wreck.GetPosition(), "HeliCrash_Distant_SoundSet".Hash());
+			GetGame().RPCSingleParam(null, ERPCs.RPC_SOUND_HELICRASH, playSound, true);
 		#endif
 
-		vector updatedDir = wreck.GetDirection();
-		vector backOffset = updatedDir * 17.0;
-		vector cargoPos = wreck.GetPosition() + backOffset;
-		cargoPos[1] = GetGame().SurfaceY(cargoPos[0], cargoPos[2]) + 1.05;
-
+		// --- Select container type and matching key ---
 		ref array<string> containerTypes = {
 			"Land_ContainerLocked_Blue_DE",
 			"Land_ContainerLocked_Red_DE",
@@ -173,41 +185,51 @@ class PlaneCrash extends CrashBase
 		};
 		string selectedType = containerTypes.GetRandomElement();
 
-		EntityAI container = GetGame().CreateObject(selectedType, cargoPos);
-		container.SetAffectPathgraph(true, true);
+		string keyName = "";
+		switch (selectedType)
+		{
+			case "Land_ContainerLocked_Blue_DE": keyName = "ShippingContainerKeys_Blue"; break;
+			case "Land_ContainerLocked_Red_DE": keyName = "ShippingContainerKeys_Red"; break;
+			case "Land_ContainerLocked_Yellow_DE": keyName = "ShippingContainerKeys_Yellow"; break;
+			case "Land_ContainerLocked_Orange_DE": keyName = "ShippingContainerKeys_Orange"; break;
+		}
+
+		// --- Spawn container 18.5m behind wreck ---
+		vector dir = wreck.GetDirection();
+		vector cargoPos = wreck.GetPosition() - (dir * -18.5);
+
+		EntityAI container = EntityAI.Cast(GetGame().CreateObject(selectedType, cargoPos));
 		if (container)
 		{
-			container.SetFlags(EntityFlags.STATIC, false);
-			container.SetLifetime(0); // Persistent object
+			container.PlaceOnSurface();
+			vector lowerPos = container.GetPosition();
+			lowerPos = Vector(lowerPos[0], lowerPos[1] - 0.2, lowerPos[2]);
+			container.SetPosition(lowerPos);
 
+			// Apply navmesh to container
+			container.SetAffectPathgraph(true, true);
+			container.SetSynchDirty();
+			GetGame().UpdatePathgraphRegionByObject(container);
+			PrintFormat("[PlaneCrash] Container %1 placed and navmesh updated.", selectedType);
+
+			container.SetLifetime(0);
 			m_ContainerTimers.Insert(container, 0);
 			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CheckContainerLifetime, CONTAINER_CHECK_INTERVAL, true, container);
 
-			FillContainerWithRandomLoot(cargoPos);
+			FillContainerWithRandomLoot(container.GetPosition());
 		}
 
-		string keyName;
-        switch (selectedType)
-        {
-	        case "Land_ContainerLocked_Blue_DE":
-		        keyName = "ShippingContainerKeys_Blue";
-		        break;
-	        case "Land_ContainerLocked_Red_DE":
-		        keyName = "ShippingContainerKeys_Red";
-		        break;
-	        case "Land_ContainerLocked_Yellow_DE":
-		        keyName = "ShippingContainerKeys_Yellow";
-		        break;
-	        case "Land_ContainerLocked_Orange_DE":
-		        keyName = "ShippingContainerKeys_Orange";
-		        break;
-        }
-        SpawnZombiesWithKey(crashPos, keyName);
-		
-		m_ContainerTimers.Insert(wreck, 0);
-        GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CheckContainerLifetime, CONTAINER_CHECK_INTERVAL, true, wreck);
+		// --- Spawn zombies with matching key after short delay ---
+		if (keyName != "")
+		{
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SpawnZombiesWithKey, 2000, false, crashPos, keyName);
+		}
 
+		// --- Cleanup timer for wreck ---
+		m_ContainerTimers.Insert(wreck, 0);
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CheckContainerLifetime, CONTAINER_CHECK_INTERVAL, true, wreck);
 	}
+
 
 	static void CheckContainerLifetime(EntityAI obj)
     {
@@ -247,7 +269,6 @@ class PlaneCrash extends CrashBase
 	    }
     }
 
-
 	static void CleanupWreck(EntityAI wreck)
 	{
 		if (wreck)
@@ -255,40 +276,93 @@ class PlaneCrash extends CrashBase
 	}
 
 	static void SpawnZombiesWithKey(vector center, string keyName)
-    {
-	    const int ZOMBIE_COUNT = 15;
-	    array<string> zombieTypes = {
-		     "ZmbM_PatrolNormal_Summer",
-             "ZmbM_PatrolNormal_Autumn",
-			 "ZmbM_SoldierNormal",
-			 "ZmbM_eastSoldier_Heavy_Navy",
-			 "ZmbM_eastSoldier_normal_Navy",
-			 "ZmbM_usSoldier_Heavy_Woodland",
-			 "ZmbM_usSoldier_Officer_Desert"
-	    };
+	{
+		auto settings = PlaneCrashSettings.Get();
 
-	    int keyZombieIndex = Math.RandomInt(0, ZOMBIE_COUNT);
+		int zombieCount = settings.ZombieCount;
+		if (zombieCount > 40) zombieCount = 40;
+		if (zombieCount < 1) zombieCount = 1;
 
-	    for (int i = 0; i < ZOMBIE_COUNT; ++i)
-	    {
-		    vector pos = center + Vector(Math.RandomFloat(-10, 10), 0, Math.RandomFloat(-10, 10));
-		    pos[1] = GetGame().SurfaceY(pos[0], pos[2]);
-		    string zombieType = zombieTypes.GetRandomElement();
+		array<string> zombieTypes;
 
-		    DayZInfected z = DayZInfected.Cast(GetGame().CreateObject(zombieType, pos, false, true));
-		    if (z)
-		    {
-			    z.SetAffectPathgraph(true, true);
+		// Check if custom zombie types are enabled in config
+		if (settings.EnableCustomZombieTypes && settings.CustomZombieTypes.Count() > 0)
+		{
+			zombieTypes = settings.CustomZombieTypes;
+			Print("[PlaneCrash] Using custom zombie types from config.");
+		}
+		else
+		{
+			zombieTypes = {
+				"ZmbM_PatrolNormal_Summer",
+				"ZmbM_PatrolNormal_Autumn",
+				"ZmbM_SoldierNormal",
+				"ZmbM_eastSoldier_Heavy_Navy",
+				"ZmbM_eastSoldier_normal_Navy",
+				"ZmbM_usSoldier_Heavy_Woodland",
+				"ZmbM_usSoldier_Officer_Desert"
+			};
+			Print("[PlaneCrash] Using default vanilla zombie types.");
+		}
 
-			    if (i == keyZombieIndex)
-			    {
-				    ItemBase keyItem = ItemBase.Cast(z.GetInventory().CreateInInventory(keyName));
-				    if (keyItem)
-					    keyItem.SetHealth01("", "", 0.10);
-			    }
-		    }
-	    }
-    }
+		int keyZombieIndex = Math.RandomInt(0, zombieCount);
+
+		for (int i = 0; i < zombieCount; ++i)
+		{
+			vector pos = center + Vector(Math.RandomFloat(-10, 10), 0, Math.RandomFloat(-10, 10));
+			pos[1] = GetGame().SurfaceY(pos[0], pos[2]);
+			string zombieType = zombieTypes.GetRandomElement();
+
+			DayZInfected z = DayZInfected.Cast(GetGame().CreateObject(zombieType, pos, false, true));
+			if (z)
+			{
+				z.SetAffectPathgraph(true, true);
+				z.SetSynchDirty();
+				PrintFormat("[NavmeshPatch] Zombie navmesh forced for: %1", zombieType);
+
+				if (i == keyZombieIndex && keyName != "")
+				{
+					ItemBase keyItem = ItemBase.Cast(z.GetInventory().CreateInInventory(keyName));
+					if (keyItem)
+					{
+						keyItem.SetHealth01("", "", 0.10);
+						PrintFormat("[PlaneCrash] Spawned key '%1' on zombie: %2", keyName, z);
+					}
+					else
+					{
+						PrintFormat("[PlaneCrash] ERROR: Failed to create key '%1' on zombie: %2", keyName, z);
+					}
+				}
+			}
+		}
+	}
+
+
+	static void SendCrashNotification(vector pos)
+	{
+		if (!PlaneCrashSettings.Get().EnableCrashNotification)
+			return;  // 🚫 don't send anything at all
+
+		string msg = string.Format("✈️ Plane crash spotted at [ %1 %2 %3 ]!",
+			pos[0].ToString(), pos[1].ToString(), pos[2].ToString());
+
+		array<Man> players = new array<Man>;
+		GetGame().GetPlayers(players);
+
+		foreach (Man player : players)
+		{
+			NotifyCrashEvent(PlayerBase.Cast(player), msg);  // this sends vanilla or Expansion
+		}
+	}
+	
+	static void MessageToPlayer(PlayerBase player, string msg)
+	{
+		if (!PlaneCrashSettings.Get().EnableCrashNotification)
+			return;
+
+		if (player)
+			player.MessageStatus(msg);  // vanilla chat message
+	}
 
 	static void FillContainerWithRandomLoot(vector centerPos)
     {
@@ -296,6 +370,10 @@ class PlaneCrash extends CrashBase
         ref array<string> lootPool;
 
         auto settings = PlaneCrashSettings.Get();
+		int maxLoot = settings.MaxLootItems;
+		if (maxLoot > 30) maxLoot = 30;
+		if (maxLoot < 1) maxLoot = 1;
+
         if (settings.EnableCustomLootItems && settings.CustomLootItems && settings.CustomLootItems.Count() > 0)
         {
             lootPool = settings.CustomLootItems;
@@ -334,38 +412,35 @@ class PlaneCrash extends CrashBase
             });
         }
 		
-		for (int i = 0; i < 15; ++i)
-	    {
-		    string itemName = lootPool.GetRandomElement();
+		for (int i = 0; i < maxLoot; ++i)
+		{
+			string itemName = lootPool.GetRandomElement();
 
-		    /* -------- Prevent duplicate weapons -------- */
-		    if (IsWeapon(itemName))
-		    {
-			    if (spawnedWeapons.Find(itemName) != -1)
-			    {
-				    --i;                     // pick another item this iteration
-				    continue;
-			    }
+			if (IsWeapon(itemName))
+			{
+				if (spawnedWeapons.Find(itemName) != -1)
+				{
+					--i;
+					continue;
+				}
 
-			    //! mark weapon as spawned & create it with attachments
-			    spawnedWeapons.Insert(itemName);
+				spawnedWeapons.Insert(itemName);
 
-			    vector wPos = centerPos + Vector(Math.RandomFloat(-1, 1), 0, Math.RandomFloat(-1, 1));
-			    wPos[1] = GetGame().SurfaceY(wPos[0], wPos[2]);
+				vector wPos = centerPos + Vector(Math.RandomFloat(-1, 1), 0, Math.RandomFloat(-1, 1));
+				wPos[1] = GetGame().SurfaceY(wPos[0], wPos[2]);
 
-			    SpawnWeaponWithAttachments(itemName, wPos);   // this creates the weapon
-			    continue;  // skip the non-weapon spawn below
-		    }
+				SpawnWeaponWithAttachments(itemName, wPos);
+				continue;
+			}
 
-		    /* -------- Non-weapon items (allow duplicates) -------- */
-		    vector pos = centerPos + Vector(Math.RandomFloat(-1, 1), 0, Math.RandomFloat(-1, 1));
-		    pos[1] = GetGame().SurfaceY(pos[0], pos[2]);
+			vector pos = centerPos + Vector(Math.RandomFloat(-1, 1), 0, Math.RandomFloat(-1, 1));
+			pos[1] = GetGame().SurfaceY(pos[0], pos[2]);
 
-		    ItemBase item = ItemBase.Cast(GetGame().CreateObject(itemName, pos, false, false));
-		    if (!item) continue;
+			ItemBase item = ItemBase.Cast(GetGame().CreateObject(itemName, pos, false, false));
+			if (!item) continue;
 
-		    item.SetHealth01("", "", Math.RandomFloat(0.30, 1.0));
-	    }
+			item.SetHealth01("", "", Math.RandomFloat(0.30, 1.0));
+		}
 	}
 
 	/* --------------------------------------------------------------------- */
