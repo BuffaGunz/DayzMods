@@ -40,7 +40,12 @@ class PlaneCrash extends CrashBase
 	static vector FindValidCrashSite()
 	{
 		auto settings = PlaneCrashSettings.Get();
-		vector site; // ✅ Declare once
+		vector site;
+
+		string worldName = GetGame().GetWorldName();
+		float worldSize = GetGame().GetWorld().GetWorldSize();
+
+		Print("🌍 World: " + worldName + " | Size: " + worldSize.ToString());
 
 		// ✅ Use custom site if enabled
 		if (settings.EnableCustomCrashSites && settings.CustomCrashSites && settings.CustomCrashSites.Count() > 0)
@@ -51,8 +56,12 @@ class PlaneCrash extends CrashBase
 			return site;
 		}
 
-		// ✅ Try entire map range
-		site = GenerateCrashSiteInRange(1000, 15000);
+		// ✅ Auto-detect bounds based on world size
+		float margin = 1000; // buffer from edge
+		float min = margin;
+		float max = worldSize - margin;
+
+		site = GenerateCrashSiteInRange(min, max);
 		if (site != vector.Zero)
 		{
 			Print("📍 Using generated crash site: " + site);
@@ -63,7 +72,7 @@ class PlaneCrash extends CrashBase
 		Print("❌ Failed to find valid crash site, aborting spawn.");
 		return vector.Zero;
 	}
-	
+
 	static vector GenerateCrashSiteInRange(float minXZ, float maxXZ)
 	{
 		const int MAX_ATTEMPTS = 50;
