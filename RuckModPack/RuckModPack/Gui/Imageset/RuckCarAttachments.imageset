@@ -1,0 +1,62 @@
+ImageSetClass {
+ Name "RuckCarAttachments"
+ RefSize 1180 740
+ Textures {
+  ImageSetTextureClass {
+   mpix 1
+   path "{F5A25F215B038504}RuckModPack/Gui/Imageset/RuckIcons.edds"
+  }
+ }
+ Images {
+  ImageSetDefClass FirstAidKit {
+   Name "FirstAidKit"
+   Pos 60 84
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass FishingRod {
+   Name "FishingRod"
+   Pos 330 83
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass JerryCan {
+   Name "JerryCan"
+   Pos 598 85
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass Map {
+   Name "Map"
+   Pos 869 85
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass TireRepairKit {
+   Name "TireRepairKit"
+   Pos 65 403
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass TireIron {
+   Name "TireIron"
+   Pos 332 403
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass SeaChest {
+   Name "SeaChest"
+   Pos 599 406
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass Pills {
+   Name "Pills"
+   Pos 870 406
+   Size 256 256
+   Flags 0
+  }
+ }
+ Groups {
+ }
+}
