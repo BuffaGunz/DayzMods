@@ -1,0 +1,206 @@
+EffectDef {
+ MinFPS 30
+ Emitors {
+  EmitorDef explo_fire_right_01 {
+   ShapeType Cone
+   ShapeSize 0 0 0
+   MaxNum 10
+   BirthRate 500
+   Offset 0 0 0
+   Angles 0 -90 0
+   Material "{D17539339C9F6B0B}Graphics/Particles/materials/weapons/weapon_shot_fnx_02.emat"
+   SizeMultiplier 0.1
+   SizeRND 0.1
+   RandomRotDir 0
+   RandomAngle 1
+   Velocity 3
+   LifeTime 0.05
+   LifeTimeRND 0.05
+   Color {
+    0 1 1 1 1 1 1 1
+   }
+   Alpha {
+    0 0.25 1 0
+   }
+   Size {
+    0 0.24051 1 1
+   }
+   EffectTime 5
+   Repeat 1
+   BRateMast {
+    0 0 0.02 1 0.04 0 1 0
+   }
+  }
+  EmitorDef explo_fire_right_02 {
+   ShapeType Cone
+   ShapeSize 0 0 0
+   MaxNum 10
+   BirthRate 500
+   Offset 0 0 0
+   Angles 0 -90 0
+   Material "{257D7EAB9142037F}Graphics/Particles/materials/weapons/weapon_shot_fnx_03.emat"
+   SizeMultiplier 0.1
+   SizeRND 0.1
+   RandomRotDir 0
+   RandomAngle 1
+   Velocity 5
+   LifeTime 0.05
+   LifeTimeRND 0.05
+   Color {
+    0 1 1 1 1 1 1 1
+   }
+   Alpha {
+    0 0.25 1 0
+   }
+   Size {
+    0 0.24051 1 1
+   }
+   EffectTime 5
+   Repeat 1
+   BRateMast {
+    0 0 0.02 1 0.04 0 1 0
+   }
+  }
+  EmitorDef explo_sparks_right {
+   ShapeType Cone
+   ShapeSize 0 0 0
+   ConeAngle 360 0 50
+   MaxNum 60
+   BirthRate 15
+   Angles 0 -90 0
+   LocalTransform 0
+   Material "{0B22CDEBF6A47216}Graphics/Particles/materials/fire/sparks_04.emat"
+   ScaleX 0.376
+   SizeMultiplier 0.1
+   SizeRND 0.1
+   RandomRotDir 0
+   RotMultiplier 0
+   StreakFullUV 0
+   VelAngle 1
+   RandomAngle 0
+   Sort 0
+   Velocity 20
+   VelocityRND 7
+   AirResistance 0
+   AirResistanceRND 0
+   GravityMultiply 3
+   GravityMultiplyRND 1
+   Wind 1
+   RandomFrame 1
+   LifeTime 0.1
+   LifeTimeRND 0.1
+   Color {
+    0 0.2 0.4 1.0 1 0.2 0.4 1.0
+   }
+   Alpha {
+    0 1 1 1
+   }
+   RotationSpeed {
+    0 1 1 1
+   }
+   Size {
+    0 1 0.5 1 1 0
+   }
+   EffectTime 5
+   Repeat 1
+   BRateMast {
+    0 1 0.1 0 1 0
+   }
+  }
+  EmitorDef smoke_fast_right {
+   ShapeType Cone
+   ConeAngle 360 0 50
+   MaxNum 60
+   BirthRate 15
+   Offset 0 0 0
+   Angles 0 -70 0
+   LocalTransform 0
+   Material "{E5E389220151D838}Graphics/Particles/materials/smoke/smoke_cloud_01_b_trans_M18_05.emat"
+   SizeMultiplier 2
+   SizeRND 2
+   RandomRotDir 1
+   RotMultiplier 20
+   StretchMultiplier 1
+   StreakFullUV 0
+   VelAngle 0
+   RandomAngle 1
+   Sort 0
+   Velocity 10
+   VelocityRND 10
+   VelAffect 0
+   AirResistance 5
+   AirResistanceRND 10
+   GravityMultiply 0
+   GravityMultiplyRND -1
+   Wind 1
+   RandomFrame 1
+   LifeTime 3
+   LifeTimeRND 2
+   Color {
+       0 0.2 0.4 1.0 1 0.2 0.4 1.0
+   }
+   Alpha {
+    0 1 0.05 0.5 1 0
+   }
+   RotationSpeed {
+    0 1 1 0.1962
+   }
+   Size {
+    0 0 0.025 0.75 1 1
+   }
+   EffectTime 5
+   Repeat 1
+   VelocityMast {
+    0 0.25 0.1 1 1 0.5
+   }
+  }
+  EmitorDef explo_dust_01_up_slow {
+   ShapeType Cone
+   ConeAngle 360 0 90
+   MaxNum 100
+   BirthRate 8
+   Offset 0 0 0
+   Angles 0 0 0
+   LocalTransform 0
+   Material "{E5E389220151D838}Graphics/Particles/materials/smoke/smoke_cloud_01_b_trans_M18_05.emat"
+   SizeMultiplier 10
+   SizeRND 6
+   RandomRotDir 1
+   RotMultiplier 20
+   StreakFullUV 0
+   VelAngle 0
+   RandomAngle 1
+   Sort 0
+   Velocity 1
+   VelocityRND 1
+   AirResistance 0
+   AirResistanceRND 0
+   GravityMultiply 0
+   GravityMultiplyRND 0
+   Wind 1
+   RandomFrame 1
+   LifeTime 4
+   LifeTimeRND 3
+   Color {
+       0 0.2 0.4 1.0 1 0.2 0.4 1.0
+   }
+   Alpha {
+    0 0 0.05 0.75 0.625 0.75 1 0
+   }
+   RotationSpeed {
+    0 1 1 0.1962
+   }
+   Size {
+    0 0.1 1 1
+   }
+   EffectTime 5
+   Repeat 1
+   SizeMast {
+    0 1 1 1
+   }
+   BRateMast {
+    0 1 1 1
+   }
+  }
+ }
+}
