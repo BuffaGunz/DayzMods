@@ -1,8 +1,8 @@
 class PlaneCrash extends CrashBase
 {
 	static ref map<EntityAI, int> m_ContainerTimers = new map<EntityAI, int>();
-	static const int MAX_CONTAINER_LIFETIME = 3600000; // 1 hour (in ms)
-	static const int CONTAINER_CHECK_INTERVAL = 30000; // 30 seconds (in ms)
+	static const int MAX_CONTAINER_LIFETIME = 3600000; 
+	static const int CONTAINER_CHECK_INTERVAL = 30000; 
 	
 	override string GetSoundSet()
 	{
@@ -47,35 +47,32 @@ class PlaneCrash extends CrashBase
 
 		Print("🌍 World: " + worldName + " | Size: " + worldSize.ToString());
 
-		// ✅ Use custom site if enabled
 		if (settings.EnableCustomCrashSites && settings.CustomCrashSites && settings.CustomCrashSites.Count() > 0)
 		{
 			site = settings.CustomCrashSites.GetRandomElement();
 			site[1] = GetGame().SurfaceY(site[0], site[2]);
-			Print("📍 Using custom crash site: " + site);
+			Print("📍 Using custom Crash site: " + site);
 			return site;
 		}
 
-		// ✅ Auto-detect bounds based on world size
-		float margin = 1000; // buffer from edge
+		float margin = 1000;
 		float min = margin;
 		float max = worldSize - margin;
 
 		site = GenerateCrashSiteInRange(min, max);
 		if (site != vector.Zero)
 		{
-			Print("📍 Using generated crash site: " + site);
+			Print("📍 Using generated Crash site: " + site);
 			return site;
 		}
 
-		// ❌ No valid site found
-		Print("❌ Failed to find valid crash site, aborting spawn.");
+		Print("❌ Failed to find valid Crash site, aborting spawn.");
 		return vector.Zero;
 	}
 
 	static vector GenerateCrashSiteInRange(float minXZ, float maxXZ)
 	{
-		const int MAX_ATTEMPTS = 50;
+		const int MAX_ATTEMPTS = 500;
 
 		for (int i = 0; i < MAX_ATTEMPTS; i++)
 		{
@@ -84,7 +81,6 @@ class PlaneCrash extends CrashBase
 			float y = GetGame().SurfaceY(x, z);
 			vector pos = Vector(x, y, z);
 
-			// ✅ Check slope
 			vector normal = GetGame().SurfaceGetNormal(x, z);
 			if (normal[1] < 0.95)
 			{
@@ -92,11 +88,11 @@ class PlaneCrash extends CrashBase
 				continue;
 			}
 
-			// ✅ Check for water/sea in 30m radius
+			// 🌊 Check for water nearby
 			bool waterNearby = false;
-			const float waterCheckRadius = 30.0;
+			const float waterCheckRadius = 15.0;
 
-			for (float angle = 0; angle < 360; angle += 30) // sample every 30 degrees around circle
+			for (float angle = 0; angle < 360; angle += 30)
 			{
 				vector offset = Vector(Math.Cos(angle) * waterCheckRadius, 0, Math.Sin(angle) * waterCheckRadius);
 				vector checkPos = pos + offset;
@@ -108,7 +104,7 @@ class PlaneCrash extends CrashBase
 				if (GetGame().SurfaceIsSea(checkPos[0], checkPos[2]) || surfType.Contains("pond") || surfType.Contains("lake") || surfType.Contains("river") || surfType.Contains("swamp") || surfType.Contains("water"))
 				{
 					waterNearby = true;
-					PrintFormat("[PlaneCrash] Rejected position %1,%2: water/sea within 30m", checkPos[0], checkPos[2]);
+					PrintFormat("[PlaneCrash] Rejected position %1,%2: water/sea within 15m", checkPos[0], checkPos[2]);
 					break;
 				}
 			}
@@ -116,22 +112,22 @@ class PlaneCrash extends CrashBase
 			if (waterNearby)
 				continue;
 
-			// ✅ Check for objects in 30m radius (buildings, trees, rocks, OutsideTerrain, etc.)
 			array<Object> objects = {};
 			array<CargoBase> dummy = {};
-			GetGame().GetObjectsAtPosition(pos, 30.0, objects, dummy);
+			GetGame().GetObjectsAtPosition(pos, 15.0, objects, dummy);
 
 			bool blocked = false;
 			foreach (Object obj : objects)
 			{
 				if (!obj) continue;
-
+				
 				string type = obj.GetType();
+				type.ToLower(); 
 
-				if (type.Contains("land") || type.Contains("treehard") || type.Contains("treesoft") || type.Contains("bushhard") || type.Contains("bushsoft") || type.Contains("rock") || type.Contains("stone") || type.Contains("static") || type.Contains("wreck") || type.Contains("fence") || type.Contains("wall") || type.Contains("rail") || type.Contains("roadblock") || type.Contains("barrier") || type.Contains("outsideterrain"))        
+				if (type.Contains("treehard") || type.Contains("treesoft") || type.Contains("bushhard") || type.Contains("bushsoft") || type.Contains("rock") || type.Contains("stone") || type.Contains("wreck") || type.Contains("fence") || type.Contains("wall") || type.Contains("rail") || type.Contains("wreck") || type.Contains("house") || type.Contains("bldr_"))
 				{
 					blocked = true;
-					PrintFormat("[PlaneCrash] Rejected position %1,%2: blocked by %3 within 30m", x, z, type);
+					PrintFormat("[PlaneCrash] Rejected position %1,%2: blocked by %3", x, z, type);
 					break;
 				}
 			}
@@ -139,87 +135,112 @@ class PlaneCrash extends CrashBase
 			if (blocked)
 				continue;
 
-			// ✅ Found valid position
-			PrintFormat("[PlaneCrash] Valid crash site found: %1,%2", x, z);
+			PrintFormat("[PlaneCrash] Valid Crash site found: %1,%2", x, z);
 			return pos;
 		}
 
-		Print("[PlaneCrash] Failed to find valid crash site after max attempts.");
+		Print("[PlaneCrash] ❌ Failed to find valid Crash site after max attempts.");
 		return vector.Zero;
 	}
 
 	static void SpawnSite()
 	{
 		vector crashPos = FindValidCrashSite();
+		if (crashPos == vector.Zero)
+		{
+			Print("[PlaneCrash] ❌ No valid crash site found. Spawn aborted.");
+			return;
+		}
 
-		// Prevent duplicate spawn
 		array<Object> nearby = {};
 		array<CargoBase> dummy = {};
 		GetGame().GetObjectsAtPosition(crashPos, 100.0, nearby, dummy);
 		foreach (Object obj : nearby)
 		{
-			if (!obj || obj.GetType() == "PlaneCrash" || obj.GetType().IndexOf("Land_ContainerLocked") != -1)
+			if (!obj) continue;
+
+			string type = obj.GetType();
+			if (type == "PlaneCrash" || type.Contains("Land_ContainerLocked"))
 			{
 				Print("⚠️ Crash or container already nearby, skipping spawn.");
 				return;
 			}
 		}
 
-		// --- Spawn wreck ---
 		EntityAI wreck = EntityAI.Cast(GetGame().CreateObject("PlaneCrash", crashPos));
 		if (!wreck) return;
 
 		wreck.PlaceOnSurface();
 
-		// Apply navmesh to wreck
+		vector wreckPos = wreck.GetPosition();
+		vector wreckNormal = GetGame().SurfaceGetNormal(wreckPos[0], wreckPos[2]);
+
+		vector wreckForward = vector.Direction(wreckPos, wreckPos + "1 0 0");
+		vector wreckRight = wreckForward * wreckNormal;
+		wreckRight.Normalize();
+		wreckForward = wreckNormal * wreckRight;
+		wreckForward.Normalize();
+
+		vector wreckMat[3];
+		wreckMat[0] = wreckForward;
+		wreckMat[1] = wreckNormal;
+		wreckMat[2] = wreckRight;
+
+		wreck.SetOrientation(Math3D.MatrixToAngles(wreckMat));
+		wreck.SetPosition(wreckPos); 
+
 		wreck.SetAffectPathgraph(true, true);
 		wreck.SetSynchDirty();
 		GetGame().UpdatePathgraphRegionByObject(wreck);
 		Print("[PlaneCrash] Wreck placed and navmesh updated.");
 
-		// --- Send notification if enabled ---
-		if (PlaneCrashSettings.Get().EnableCrashNotification)
-		{
-			SendCrashNotification(wreck.GetPosition());
-		}
-
-		// --- Play sound ---
 		#ifdef SERVER
 			Param3<bool, vector, int> playSound = new Param3<bool, vector, int>(true, wreck.GetPosition(), "HeliCrash_Distant_SoundSet".Hash());
 			GetGame().RPCSingleParam(null, ERPCs.RPC_SOUND_HELICRASH, playSound, true);
 		#endif
 
-		// --- Select container type and matching key ---
 		ref array<string> containerTypes = {
-			"Land_ContainerLocked_Blue_DE",
-			"Land_ContainerLocked_Red_DE",
-			"Land_ContainerLocked_Yellow_DE",
-			"Land_ContainerLocked_Orange_DE"
+			"WreckContainerBlue",
+			"WreckContainerRed",
+			"WreckContainerYellow",
+			"WreckContainerOrange"
 		};
 		string selectedType = containerTypes.GetRandomElement();
 
 		string keyName = "";
 		switch (selectedType)
 		{
-			case "Land_ContainerLocked_Blue_DE": keyName = "ShippingContainerKeys_Blue"; break;
-			case "Land_ContainerLocked_Red_DE": keyName = "ShippingContainerKeys_Red"; break;
-			case "Land_ContainerLocked_Yellow_DE": keyName = "ShippingContainerKeys_Yellow"; break;
-			case "Land_ContainerLocked_Orange_DE": keyName = "ShippingContainerKeys_Orange"; break;
+			case "WreckContainerBlue":   keyName = "ShippingContainerKeys_Blue"; break;
+			case "WreckContainerRed":    keyName = "ShippingContainerKeys_Red"; break;
+			case "WreckContainerYellow": keyName = "ShippingContainerKeys_Yellow"; break;
+			case "WreckContainerOrange": keyName = "ShippingContainerKeys_Orange"; break;
 		}
 
-		// --- Spawn container 18.5m behind wreck ---
 		vector dir = wreck.GetDirection();
-		vector cargoPos = wreck.GetPosition() - (dir * -18.5);
+		vector cargoPos = wreck.GetPosition() + (dir * 18.5);
 
 		EntityAI container = EntityAI.Cast(GetGame().CreateObject(selectedType, cargoPos));
 		if (container)
 		{
 			container.PlaceOnSurface();
-			vector lowerPos = container.GetPosition();
-			lowerPos = Vector(lowerPos[0], lowerPos[1] - 0.2, lowerPos[2]);
-			container.SetPosition(lowerPos);
 
-			// Apply navmesh to container
+			vector containerPos = container.GetPosition();
+			vector containerNormal = GetGame().SurfaceGetNormal(containerPos[0], containerPos[2]);
+
+			vector forward = vector.Direction(containerPos, containerPos + "1 0 0");
+			vector right = forward * containerNormal;
+			right.Normalize();
+			forward = containerNormal * right;
+			forward.Normalize();
+
+			vector mat[3];
+			mat[0] = forward;
+			mat[1] = containerNormal;
+			mat[2] = right;
+
+			container.SetOrientation(Math3D.MatrixToAngles(mat));
+			container.SetPosition(containerPos);
+
 			container.SetAffectPathgraph(true, true);
 			container.SetSynchDirty();
 			GetGame().UpdatePathgraphRegionByObject(container);
@@ -229,16 +250,19 @@ class PlaneCrash extends CrashBase
 			m_ContainerTimers.Insert(container, 0);
 			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CheckContainerLifetime, CONTAINER_CHECK_INTERVAL, true, container);
 
-			FillContainerWithRandomLoot(container.GetPosition());
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(FillContainerWithRandomLoot, 2000, false, container);
 		}
 
-		// --- Spawn zombies with matching key after short delay ---
 		if (keyName != "")
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SpawnZombiesWithKey, 2000, false, crashPos, keyName);
 		}
 
-		// --- Add wreck to container timer system (NEW) ---
+		if (PlaneCrashSettings.Get().EnableCrashNotification)
+		{
+			SendCrashNotification(wreck.GetPosition());
+		}
+
 		m_ContainerTimers.Insert(wreck, 0);
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CheckContainerLifetime, CONTAINER_CHECK_INTERVAL, true, wreck);
 	}
@@ -264,7 +288,6 @@ class PlaneCrash extends CrashBase
 
 		if (nearby)
 		{
-			// ✅ Reset timer if players are nearby
 			m_ContainerTimers.Set(obj, 0);
 		}
 		else
@@ -276,18 +299,7 @@ class PlaneCrash extends CrashBase
 				
 				m_ContainerTimers.Remove(obj);
 
-				if (obj.IsInherited(ItemBase))
-				{
-					if (obj.GetHierarchyParent())
-					{
-						PrintFormat("[Cleanup] Stopped tracking loot: %1 (moved out of wreck site)", obj);
-						return;
-					}
-
-					GetGame().ObjectDelete(obj);
-					PrintFormat("[Cleanup] Deleted loose loot: %1", obj);
-				}
-				else if (obj.GetType().Contains("Land_ContainerLocked") || obj.GetType().Contains("Container"))
+				if (obj.GetType().Contains("Land_ContainerLocked") || obj.GetType().Contains("Container"))
 				{
 					GetGame().ObjectDelete(obj);
 					PrintFormat("[Cleanup] Deleted container: %1", obj);
@@ -315,7 +327,6 @@ class PlaneCrash extends CrashBase
 
 		array<string> zombieTypes;
 
-		// Check if custom zombie types are enabled in config
 		if (settings.EnableCustomZombieTypes && settings.CustomZombieTypes.Count() > 0)
 		{
 			zombieTypes = settings.CustomZombieTypes;
@@ -367,12 +378,358 @@ class PlaneCrash extends CrashBase
 		}
 	}
 	
+	static EntityAI FindAttachmentByType(EntityAI parent, string type)
+	{
+		for (int i = 0; i < parent.GetInventory().AttachmentCount(); ++i)
+		{
+			EntityAI attachment = parent.GetInventory().GetAttachmentFromIndex(i);
+			if (attachment && attachment.GetType() == type)
+				return attachment;
+		}
+		return null;
+	}
+	
+	static void FillContainerWithRandomLoot(EntityAI container)
+	{
+		string containerType = container.GetType();
+		string crateType = "";
+
+		switch (containerType)
+		{
+			case "WreckContainerRed":
+			case "WreckContainerBlue":
+			case "WreckContainerYellow":
+			case "WreckContainerOrange":
+				crateType = "RuckCrashStorage";
+				break;
+
+			default:
+				Print("⚠️ Unknown container type: " + containerType);
+				return;
+		}
+
+		EntityAI crate = FindAttachmentByType(container, crateType);
+		if (!crate)
+		{
+			Print("❌ No attached storage crate of type " + crateType + " found on container: " + containerType);
+			return;
+		}
+
+		auto settings = PlaneCrashSettings.Get();
+		ref array<string> lootPool = new array<string>();
+		int maxLoot = 0;
+
+		if (crateType == "RuckCrashStorage")
+		{
+			maxLoot = Math.Clamp(settings.MaxLootItems, 1, 30);
+
+			if (settings.EnableCustomLootItems && settings.CustomLootItems && settings.CustomLootItems.Count() > 0)
+			{
+				lootPool = settings.CustomLootItems;
+				Print("🧰 Using custom loot items from config");
+			}
+			else
+			{
+				lootPool.InsertAll({
+					"FNX45","VSS","ASVAL","Vikhr","SV98","Winchester70","Mosin9130","SKS","AKM","AK74",
+					"AKS74U","AK101","M4A1","M16A2","FAMAS","Aug","AugShort","FAL","SVD","SVD_Wooden",
+					"Engraved1911","B95","Saiga","Deagle","Deagle_Gold","Scout","CZ550","R12","M14","M79",
+					"PlateCarrierVest","PlateCarrierVest_Black","PlateCarrierVest_Green","PlateCarrierVest_Camo","PlateCarrierVest_Winter",
+					"GorkaHelmet","GorkaHelmet_Black","Mich2001Helmet","AliceBag_Green","AliceBag_Black","AliceBag_Camo",
+					"OMKPants_Navy","OMKJacket_Navy","MilitaryBoots_Black","MilitaryBelt",
+					"Plastic_Explosive","AmmoBox_762x54_20Rnd","Ammo_308Win","AmmoBox_545x39_20Rnd","AmmoBox_556x45_20Rnd",
+					"AmmoBox_762x39_20Rnd","AmmoBox_9x39AP_20Rnd","Ammo_40mm_Explosive","Ammo_40mm_ChemGas",
+					"NVGoggles","NVGHeadstrap","Headtorch_Grey","Headtorch_Black","UniversalLight", "M67Grenade", "RGD5Grenade",
+					"M4_Suppressor","AK_Suppressor","PistolSuppressor", "AmmoBox_00buck_10rnd", "AmmoBox_22_50Rnd", "AmmoBox_308WinTracer_20Rnd", "AmmoBox_357_20Rnd", "AmmoBox_762x39_20Rnd", "AmmoBox_9x19_25rnd",
+					"SalineBagIV", "BandageDressing", "Epinephrine", "Morphine", "VitaminBottle", "BloodBagEmpty", "TetracyclineAntibiotics",
+					"GasMask_Filter", "IodineTincture", "NBCBootsGray", "NBCGlovesGray", "NBCHoodGray", "NBCJacketGray","NBCPantsGray",
+					"PainkillerTablets", "StartKitIV", "BloodTestKit", "CharcoalTablets", "ChelatingTablets", "AntiChemInjector",
+					"GP5GasMask", "AirborneMask", "HipPack_Medical", "FirstAidKit"
+				});
+			}
+		}
+	
+		ref map<string, ref array<string>> weaponBonusLoot = GetWeaponBonusLootweaponMap();
+
+		ref array<string> shuffledLoot = new array<string>;
+		shuffledLoot.Copy(lootPool);
+		ShuffleStringArray(shuffledLoot);
+
+		int lootIndex = 0;
+		ref set<string> spawnedWeapons = new set<string>();
+
+		for (int i = 0; i < maxLoot; ++i)
+		{
+			if (lootIndex >= shuffledLoot.Count())
+			{
+				ShuffleStringArray(shuffledLoot);
+				lootIndex = 0;
+			}
+
+			string itemName = shuffledLoot.Get(lootIndex++);
+			ItemBase item = ItemBase.Cast(crate.GetInventory().CreateInInventory(itemName));
+
+			if (!item)
+			{
+				Print("⚠️ Cannot add " + itemName + " to crate inventory");
+				continue;
+			}
+
+			item.SetHealth01("", "", Math.RandomFloat(0.4, 1.0));
+
+			if (weaponBonusLoot.Contains(itemName))
+			{
+				ref array<string> bonusItems = weaponBonusLoot.Get(itemName);
+				foreach (string bonusName : bonusItems)
+				{
+					ItemBase bonusItem = ItemBase.Cast(crate.GetInventory().CreateInInventory(bonusName));
+					if (bonusItem)
+					{
+						bonusItem.SetHealth01("", "", Math.RandomFloat(0.6, 1.0));
+					}
+					else
+					{
+						Print("⚠️ Failed to spawn bonus item: " + bonusName + " for weapon: " + itemName);
+					}
+				}
+			}
+		}
+	}
+
+	static void ShuffleStringArray(ref array<string> arr)
+	{
+		int count = arr.Count();
+		for (int i = 0; i < count; i++)
+		{
+			int j = Math.RandomInt(i, count); 
+			if (i != j)
+			{
+				string temp = arr[i];
+				arr[i] = arr[j];
+				arr[j] = temp;
+			}
+		}
+	}
+
+	static ref map<string, ref array<string>> GetWeaponBonusLootweaponMap()
+	{
+		auto weaponMap = new map<string, ref array<string>>();
+
+		ref array<string> arr;
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_MKII_10Rnd", "AmmoBox_22_50Rnd"});
+		weaponMap.Insert("MKII", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_CZ75_15Rnd", "PistolSuppressor", "TLRLight", "AmmoBox_9x19_25rnd"});
+		weaponMap.Insert("CZ75", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_Glock_15Rnd", "PistolSuppressor", "TLRLight", "AmmoBox_9x19_25rnd"});
+		weaponMap.Insert("Glock19", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_FNX45_15Rnd", "PistolSuppressor", "TLRLight", "FNP45_MRDSOptic", "AmmoBox_45ACP_25rnd"});
+		weaponMap.Insert("FNX45", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_CZ61_20Rnd", "PistolSuppressor", "AmmoBox_380_35rnd"});
+		weaponMap.Insert("CZ61", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"MP5_PlasticHndgrd", "MP5k_StockBttstck", "Mag_MP5_15Rnd", "Mag_MP5_30Rnd", "BUISOptic", "PistolSuppressor", "AmmoBox_9x19_25rnd"});
+		weaponMap.Insert("MP5K", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_UMP_25Rnd", "ReflexOptic", "PistolSuppressor", "TLRLight", "AmmoBox_45ACP_25rnd"});
+		weaponMap.Insert("UMP45", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"PSO11Optic", "Mag_VSS_10Rnd", "AmmoBox_9x39AP_20Rnd"});
+		weaponMap.Insert("VSS", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_VAL_20Rnd", "ACOGOptic", "TLRLight", "AmmoBox_9x39AP_20Rnd"});
+		weaponMap.Insert("ASVAL", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"PSO1Optic", "Mag_Vikhr_30Rnd", "AmmoBox_9x39AP_20Rnd"});
+		weaponMap.Insert("Vikhr", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"ACOGOptic_6x", "Mag_SV98_10Rnd", "AmmoBox_762x54_20Rnd"});
+		weaponMap.Insert("SV98", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"SportingOptic", "Mag_CZ527_5rnd", "AmmoBox_762x39_20Rnd"});
+		weaponMap.Insert("CZ527", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"HuntingOptic", "AmmoBox_308Win_20Rnd"});
+		weaponMap.Insert("Winchester70", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mosin_Compensator", "PUScopeOptic", "AmmoBox_762x54_20Rnd"});
+		weaponMap.Insert("Mosin9130", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"PUScopeOptic", "AmmoBox_762x39_20Rnd"});
+		weaponMap.Insert("SKS", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"AK_PlasticBttstck", "AK_PlasticHndgrd", "AK_Suppressor", "Mag_AKM_30Rnd", "AmmoBox_762x39_20Rnd"});
+		weaponMap.Insert("AKM", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"AK74_WoodBttstck", "AK74_Hndgrd", "Mag_AK74_45Rnd", "AmmoBox_545x39_20Rnd"});
+		weaponMap.Insert("AK74", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"AKS74U_Bttstck", "Mag_AK74_30Rnd", "AmmoBox_545x39_20Rnd"});
+		weaponMap.Insert("AKS74U", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"AK_PlasticBttstck", "AK_PlasticHndgrd", "Mag_AK101_30Rnd", "AmmoBox_556x45_20Rnd"});
+		weaponMap.Insert("AK101", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"M4_OEBttstck", "M4_PlasticHndgrd", "M4_CarryHandleOptic", "Mag_CMAG_40Rnd", "AmmoBox_556x45_20Rnd"});
+		weaponMap.Insert("M4A1", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_CMAG_30Rnd", "AmmoBox_556x45_20Rnd"});
+		weaponMap.Insert("M16A2", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_FAMAS_25Rnd", "AmmoBox_556x45_20Rnd"});
+		weaponMap.Insert("FAMAS", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_Aug_30Rnd", "BUISOptic", "M4_T3NRDSOptic", "TLRLight", "AmmoBox_556x45_20Rnd"});
+		weaponMap.Insert("Aug", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_Aug_30Rnd", "AmmoBox_556x45_20Rnd"});
+		weaponMap.Insert("AugShort", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Fal_FoldingBttstck", "Fal_OeBttstck", "ACOGOptic", "Mag_FAL_20Rnd", "AmmoBox_308Win_20Rnd"});
+		weaponMap.Insert("FAL", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_SVD_10Rnd", "KashtanOptic", "AmmoBox_762x54_20Rnd"});
+		weaponMap.Insert("SVD", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_SVD_10Rnd", "PSO11Optic", "AmmoBox_762x54_20Rnd"});
+		weaponMap.Insert("SVD_Wooden", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"PistolSuppressor", "Mag_1911_7Rnd", "AmmoBox_45ACP_25rnd"});
+		weaponMap.Insert("Colt1911", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"PistolSuppressor", "Mag_1911_7Rnd", "AmmoBox_45ACP_25rnd"});
+		weaponMap.Insert("Engraved1911", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"HuntingOptic", "Ammo_308Win"});
+		weaponMap.Insert("B95", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Saiga_Bttstck", "Mag_Saiga_8Rnd", "AmmoBox_00buck_10rnd"});
+		weaponMap.Insert("Saiga", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"SportingOptic", "Mag_Ruger1022_30Rnd", "AmmoBox_22_50Rnd"});
+		weaponMap.Insert("Ruger1022", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_Deagle_9rnd", "AmmoBox_357_20Rnd"});
+		weaponMap.Insert("Deagle", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_Deagle_9rnd", "AmmoBox_357_20Rnd"});
+		weaponMap.Insert("Deagle_Gold", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_Scout_5Rnd", "ACOGOptic_6x", "AmmoBox_556x45_20Rnd"});
+		weaponMap.Insert("Scout", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"HuntingOptic", "Mag_CZ550_10rnd", "AmmoBox_308Win_20Rnd"});
+		weaponMap.Insert("CZ550", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"PP19_Bttstck", "PistolSuppressor", "Mag_PP19_64Rnd", "AmmoBox_9x19_25rnd"});
+		weaponMap.Insert("PP19", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"PistolOptic", "AmmoBox_308Win_20Rnd"});
+		weaponMap.Insert("LongHorn", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_P1_8Rnd", "PistolSuppressor", "AmmoBox_9x19_25rnd"});
+		weaponMap.Insert("P1", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_SSG82_5rnd", "AmmoBox_9x39AP_20Rnd"});
+		weaponMap.Insert("SSG82", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"AmmoBox_00buck_10rnd"});
+		weaponMap.Insert("MP133Shotgun", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"UniversalLight", "ReflexOptic", "AmmoBox_00buck_10rnd"});
+		weaponMap.Insert("R12", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"Mag_M14_20Rnd", "ACOGOptic_6x", "AmmoBox_308Win_20Rnd"});
+		weaponMap.Insert("M14", arr);
+		
+		arr = new array<string>();
+		arr.InsertAll({"GasMask_Filter"});
+		weaponMap.Insert("AirborneMask", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"GasMask_Filter"});
+		weaponMap.Insert("GP5GasMask", arr);
+		
+		arr = new array<string>();
+		arr.InsertAll({"BandageDressing", "Thermometer", "StartKitIV", "BloodBagEmpty", "BloodTestKit"});
+		weaponMap.Insert("FirstAidKit", arr);
+		
+		arr = new array<string>();
+		arr.InsertAll({"PlateCarrierHolster_Camo", "PlateCarrierPouches_Camo"});
+		weaponMap.Insert("PlateCarrierVest_Camo", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"PlateCarrierHolster_Black", "PlateCarrierPouches_Black"});
+		weaponMap.Insert("PlateCarrierVest_Black", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"BandageDressing", "VitaminBottle"});
+		weaponMap.Insert("HipPack_Medical", arr);
+
+		arr = new array<string>();
+		arr.InsertAll({"NVGoggles"});
+		weaponMap.Insert("NVGHeadstrap", arr);
+		
+		arr = new array<string>();
+		arr.InsertAll({"RemoteDetonator"});
+		weaponMap.Insert("Plastic_Explosive", arr);
+
+		return weaponMap;
+	}
+	
 	static void SendCrashNotification(vector pos)
 	{
 		if (!PlaneCrashSettings.Get().EnableCrashNotification)
-			return;  // 🚫 don't send anything at all
+			return;  
 
-		string msg = string.Format("Crash spotted at coordinates x(%1) z(%2)",
+		string msg = string.Format("Downed plane spotted at coordinates x(%1) z(%2)",
 			pos[0].ToString(), pos[2].ToString());
 
 		array<Man> players = new array<Man>;
@@ -392,669 +749,4 @@ class PlaneCrash extends CrashBase
 			}	
 		}
 	}
-
-	static void FillContainerWithRandomLoot(vector centerPos)
-    {
-        ref set<string> spawnedWeapons = new set<string>();
-        ref array<string> lootPool;
-
-        auto settings = PlaneCrashSettings.Get();
-		int maxLoot = settings.MaxLootItems;
-		if (maxLoot > 30) maxLoot = 30;
-		if (maxLoot < 1) maxLoot = 1;
-
-        if (settings.EnableCustomLootItems && settings.CustomLootItems && settings.CustomLootItems.Count() > 0)
-        {
-            lootPool = settings.CustomLootItems;
-            Print("🧰 Using custom loot items from config");
-        }
-        else
-        {
-            lootPool = new array<string>;
-            lootPool.InsertAll({
-                // Weapons
-			"FNX45","VSS","ASVAL","Vikhr","SV98","Winchester70","Mosin9130","SKS","AKM","AK74",
-			"AKS74U","AK101","M4A1","M16A2","FAMAS","Aug","AugShort","FAL","SVD","SVD_Wooden",
-			"Engraved1911","B95","Saiga","Deagle","Deagle_Gold","Scout","CZ550","R12","M14","M79",
-			// Vests / clothing
-			"PlateCarrierVest","PlateCarrierVest_Black","PlateCarrierVest_Green","PlateCarrierVest_Camo","PlateCarrierVest_Winter",
-			"GorkaHelmet","GorkaHelmet_Black","Mich2001Helmet","AliceBag_Green","AliceBag_Black","AliceBag_Camo",
-			"OMKPants_Navy","OMKJacket_Navy","MilitaryBoots_Black","MilitaryBelt",
-			// Magazines
-			"Mag_SV98_10rnd","Mag_M14_10Rnd","Mag_M14_20Rnd","Mag_AK74_30Rnd","Mag_AK74_45Rnd","Mag_AK101_30Rnd","Mag_AKM_30Rnd",
-			"Mag_AKM_Palm30Rnd","Mag_AKM_Drum75Rnd","Mag_Aug_30Rnd","Mag_CZ550_10rnd","Mag_FAL_20Rnd","Mag_FAMAS_25Rnd",
-			"Mag_STANAG_30Rnd","Mag_CMAG_30Rnd","Mag_CMAG_40Rnd","Mag_STANAGCoupled_30Rnd","Mag_STANAG_60Rnd","Mag_SVD_10Rnd",
-			"Mag_VSS_10Rnd","Mag_VAL_20Rnd","Mag_Vikhr_30Rnd",
-			// Ammo / Explosives
-			"RemoteDetonator","Plastic_Explosive","Ammo_762x54","Ammo_762x54Tracer","Ammo_308Win","Ammo_308WinTracer","Ammo_545x39","Ammo_545x39Tracer","Ammo_556x45",
-			"Ammo_556x45Tracer","Ammo_762x39","Ammo_762x39Tracer","Ammo_9x39","Ammo_9x39AP","Ammo_40mm_Explosive","Ammo_40mm_ChemGas",
-			// Medical
-			"SalineBagIV","BandageDressing","DisinfectantSpray","DisinfectantAlcohol","PurificationTablets","CharcoalTablets",
-			"PainkillerTablets","VitaminBottle","IodineTincture","TetracyclineAntibiotics","Epinephrine","Morphine",
-			"AntiChemInjector","SalineBag","StartKitIV","BloodBagEmpty","BloodTestKit",
-			// Food / drink
-			"Canteen","WaterBottle","TacticalBaconCan","TunaCan","Lunchmeat","BrisketSpread","Crackers",
-			// Lights / NV
-			"NVGoggles","NVGHeadstrap","Headtorch_Grey","Headtorch_Black","UniversalLight",
-			// Suppressors
-			"M4_Suppressor","AK_Suppressor","PistolSuppressor"
-            });
-        }
-		
-		for (int i = 0; i < maxLoot; ++i)
-		{
-			string itemName = lootPool.GetRandomElement();
-
-			if (IsWeapon(itemName))
-			{
-				if (spawnedWeapons.Find(itemName) != -1)
-				{
-					--i;
-					continue;
-				}
-
-				spawnedWeapons.Insert(itemName);
-
-				vector wPos = centerPos + Vector(Math.RandomFloat(-1, 1), 0, Math.RandomFloat(-1, 1));
-				wPos[1] = GetGame().SurfaceY(wPos[0], wPos[2]);
-
-				// ✅ Spawn weapon with attachments
-				SpawnWeaponWithAttachments(itemName, wPos);
-
-				// ✅ Get the weapon at position (to track it for cleanup)
-				array<Object> nearbyObjects = {};
-				array<CargoBase> dummy = {};
-				GetGame().GetObjectsAtPosition(wPos, 0.5, nearbyObjects, dummy);
-
-				foreach (Object obj : nearbyObjects)
-				{
-					ItemBase weapon = ItemBase.Cast(obj);
-					if (weapon && IsWeapon(weapon.GetType()))
-					{
-						weapon.SetHealth01("", "", Math.RandomFloat(0.30, 1.0));
-
-						// ✅ Track weapon for cleanup
-						m_ContainerTimers.Insert(weapon, 0);
-						GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CheckContainerLifetime, CONTAINER_CHECK_INTERVAL, true, weapon);
-						break;
-					}
-				}
-
-				continue; // ✅ Go to next loot
-			}
-
-			// Non-weapon loot
-			vector pos = centerPos + Vector(Math.RandomFloat(-1, 1), 0, Math.RandomFloat(-1, 1));
-			pos[1] = GetGame().SurfaceY(pos[0], pos[2]);
-
-			ItemBase item = ItemBase.Cast(GetGame().CreateObject(itemName, pos, false, false));
-			if (!item) continue;
-
-			item.SetHealth01("", "", Math.RandomFloat(0.30, 1.0));
-
-			// ✅ Track loose loot for cleanup
-			m_ContainerTimers.Insert(item, 0);
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CheckContainerLifetime, CONTAINER_CHECK_INTERVAL, true, item);
-		}
-	}
-
-	/* --------------------------------------------------------------------- */
-	/*  Weapon attachments                                                   */
-	/* --------------------------------------------------------------------- */
-
-	static void SpawnWeaponWithAttachments(string weaponName, vector pos)
-	{
-		ItemBase loot;  // will hold the newly spawned weapon (if any)
-
-		switch (weaponName)
-		{
-			/* ------------------------------------------------------------- */
-			/*  Pistols                                                      */
-			/* ------------------------------------------------------------- */
-			case "FNX45":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("FNX45", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.3, 1.0));
-
-				if (Math.RandomFloat01() <= 0.10) loot.GetInventory().CreateAttachment("Mag_FNX45_15Rnd");
-				if (Math.RandomFloat01() <= 0.20) loot.GetInventory().CreateAttachment("PistolSuppressor");
-				if (Math.RandomFloat01() <= 0.10) loot.GetInventory().CreateAttachment("TLRLight");
-				if (Math.RandomFloat01() <= 0.15) loot.GetInventory().CreateAttachment("FNP45_MRDSOptic");
-				break;
-			}
-
-			case "Engraved1911":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("Engraved1911", pos));
-				if (!loot) break;
-
-				if (Math.RandomFloat01() <= 0.05) loot.GetInventory().CreateAttachment("PistolSuppressor");
-				if (Math.RandomFloat01() <= 0.60) loot.GetInventory().CreateAttachment("Mag_1911_7Rnd");
-				break;
-			}
-
-			case "Deagle":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("Deagle", pos));
-				if (!loot) break;
-
-				if (Math.RandomFloat01() <= 0.10) loot.GetInventory().CreateAttachment("Mag_Deagle_9rnd");
-				break;
-			}
-
-			case "Deagle_Gold":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("Deagle_Gold", pos));
-				if (!loot) break;
-
-				if (Math.RandomFloat01() <= 0.25) loot.GetInventory().CreateAttachment("Mag_Deagle_9rnd");
-				break;
-			}
-
-			/* ------------------------------------------------------------- */
-			/*  9×39 mm family (VSS / VAL / Vikhr)                           */
-			/* ------------------------------------------------------------- */
-			case "VSS":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("VSS", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.3, 1.0));
-
-				loot.GetInventory().CreateAttachment("PSO11Optic");
-
-				if (Math.RandomFloat01() <= 0.35)
-				{
-					float r = Math.RandomFloat01();
-					if (r < 0.50)      loot.GetInventory().CreateAttachment("Mag_VSS_10Rnd");
-					else if (r < 0.85) loot.GetInventory().CreateAttachment("Mag_VAL_20Rnd");
-					else               loot.GetInventory().CreateAttachment("Mag_Vikhr_30Rnd");
-				}
-				break;
-			}
-
-			case "ASVAL":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("ASVAL", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.3, 1.0));
-
-				if (Math.RandomFloat01() <= 0.35)
-				{
-					float r1 = Math.RandomFloat01();
-					if (r1 < 0.50)      loot.GetInventory().CreateAttachment("Mag_VSS_10Rnd");
-					else if (r1 < 0.85) loot.GetInventory().CreateAttachment("Mag_VAL_20Rnd");
-					else               loot.GetInventory().CreateAttachment("Mag_Vikhr_30Rnd");
-				}
-
-				if (Math.RandomFloat01() <= 0.30)
-				{
-					float r2 = Math.RandomFloat01();
-					if (r2 < 0.25)      loot.GetInventory().CreateAttachment("BUISOptic");
-					else if (r2 < 0.50) loot.GetInventory().CreateAttachment("M4_T3NRDSOptic");
-					else if (r2 < 0.75) loot.GetInventory().CreateAttachment("ReflexOptic");
-					else               loot.GetInventory().CreateAttachment("ACOGOptic");
-				}
-
-				if (Math.RandomFloat01() <= 0.10) loot.GetInventory().CreateAttachment("TLRLight");
-				break;
-			}
-
-			case "Vikhr":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("Vikhr", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.3, 1.0));
-
-				if (Math.RandomFloat01() <= 0.25)
-				{
-					if (Math.RandomFloat01() < 0.5) loot.GetInventory().CreateAttachment("KashtanOptic");
-					else                            loot.GetInventory().CreateAttachment("PSO1Optic");
-				}
-
-				if (Math.RandomFloat01() <= 0.35)
-				{
-					float r3 = Math.RandomFloat01();
-					if (r3 < 0.50)      loot.GetInventory().CreateAttachment("Mag_VSS_10Rnd");
-					else if (r3 < 0.85) loot.GetInventory().CreateAttachment("Mag_VAL_20Rnd");
-					else               loot.GetInventory().CreateAttachment("Mag_Vikhr_30Rnd");
-				}
-				break;
-			}
-
-			/* ------------------------------------------------------------- */
-			/*  Bolt actions / snipers                                       */
-			/* ------------------------------------------------------------- */
-			case "SV98":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("SV98", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.3, 1.0));
-
-				if (Math.RandomFloat01() <= 0.25)
-				{
-					float r4 = Math.RandomFloat01();
-					if (r4 < 0.30)      loot.GetInventory().CreateAttachment("M4_T3NRDSOptic");
-					else if (r4 < 0.60) loot.GetInventory().CreateAttachment("ReflexOptic");
-					else if (r4 < 0.85) loot.GetInventory().CreateAttachment("ACOGOptic");
-					else               loot.GetInventory().CreateAttachment("ACOGOptic_6x");
-				}
-
-				if (Math.RandomFloat01() <= 0.45) loot.GetInventory().CreateAttachment("Mag_SV98_10Rnd");
-				break;
-			}
-
-			case "Winchester70":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("Winchester70", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.3, 0.7));
-
-				if (Math.RandomFloat01() <= 0.20)
-				{
-					if (Math.RandomFloat01() < 0.90) loot.GetInventory().CreateAttachment("SportingOptic");
-					else                              loot.GetInventory().CreateAttachment("HuntingOptic");
-				}
-				break;
-			}
-
-			case "Mosin9130":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("Mosin9130", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.3, 0.7));
-
-				if (Math.RandomFloat01() <= 0.10) loot.GetInventory().CreateAttachment("Mosin_Compensator");
-				if (Math.RandomFloat01() <= 0.05) loot.GetInventory().CreateAttachment("PUScopeOptic");
-				break;
-			}
-
-			case "SKS":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("SKS", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.3, 0.7));
-
-				if (Math.RandomFloat01() <= 0.10) loot.GetInventory().CreateAttachment("PUScopeOptic");
-				break;
-			}
-
-			/* ------------------------------------------------------------- */
-			/*  AK family                                                    */
-			/* ------------------------------------------------------------- */
-			case "AKM":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("AKM", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.45, 0.85));
-
-				loot.GetInventory().CreateAttachment("AK_PlasticBttstck");
-				loot.GetInventory().CreateAttachment("AK_PlasticHndgrd");
-
-				if (Math.RandomFloat01() <= 0.50)
-				{
-					float r5 = Math.RandomFloat01();
-					if (r5 <= 0.30)      loot.GetInventory().CreateAttachment("KashtanOptic");
-					else if (r5 <= 0.50) loot.GetInventory().CreateAttachment("PSO11Optic");
-				}
-
-				if (Math.RandomFloat01() <= 0.05) loot.GetInventory().CreateAttachment("AK_Suppressor");
-				if (Math.RandomFloat01() <= 0.30) loot.GetInventory().CreateAttachment("Mag_AKM_30Rnd");
-				break;
-			}
-
-			case "AK74":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("AK74", pos));
-				if (!loot) break;
-
-				loot.GetInventory().CreateAttachment("AK74_WoodBttstck");
-				loot.GetInventory().CreateAttachment("AK74_Hndgrd");
-
-				if (Math.RandomFloat01() <= 0.30)
-				{
-					float r6 = Math.RandomFloat01();
-					if (r6 <= 0.50)      loot.GetInventory().CreateAttachment("KashtanOptic");
-					else if (r6 <= 0.80) loot.GetInventory().CreateAttachment("PSO11Optic");
-				}
-
-				if (Math.RandomFloat01() <= 0.30)
-				{
-					if (Math.RandomFloat01() <= 0.15) loot.GetInventory().CreateAttachment("Mag_AK74_45Rnd");
-					else                               loot.GetInventory().CreateAttachment("Mag_AK74_30Rnd");
-				}
-				break;
-			}
-
-			case "AKS74U":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("AKS74U", pos));
-				if (!loot) break;
-
-				loot.GetInventory().CreateAttachment("AKS74U_Bttstck");
-
-				if (Math.RandomFloat01() <= 0.30) loot.GetInventory().CreateAttachment("Mag_AK74_30Rnd");
-				break;
-			}
-
-			case "AK101":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("AK101", pos));
-				if (!loot) break;
-
-				loot.GetInventory().CreateAttachment("AK_PlasticBttstck");
-				loot.GetInventory().CreateAttachment("AK_PlasticHndgrd");
-
-				if (Math.RandomFloat01() <= 0.30)
-				{
-					float r7 = Math.RandomFloat01();
-					if (r7 <= 0.50)      loot.GetInventory().CreateAttachment("KashtanOptic");
-					else if (r7 <= 0.80) loot.GetInventory().CreateAttachment("PSO11Optic");
-				}
-
-				if (Math.RandomFloat01() <= 0.30) loot.GetInventory().CreateAttachment("Mag_AK101_30Rnd");
-				break;
-			}
-
-			/* ------------------------------------------------------------- */
-			/*  5.56 mm AR platform                                          */
-			/* ------------------------------------------------------------- */
-			case "M4A1":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("M4A1", pos));
-				if (!loot) break;
-
-				loot.GetInventory().CreateAttachment("M4_OEBttstck");
-				loot.GetInventory().CreateAttachment("M4_PlasticHndgrd");
-
-				if (Math.RandomFloat01() <= 1.00)
-				{
-					if (Math.RandomFloat01() <= 0.50) loot.GetInventory().CreateAttachment("BUISOptic");
-					else                              loot.GetInventory().CreateAttachment("M4_CarryHandleOptic");
-				}
-
-				if (Math.RandomFloat01() <= 0.30)
-				{
-					float r8 = Math.RandomFloat01();
-					if (r8 <= 0.15)      loot.GetInventory().CreateAttachment("Mag_CMAG_40Rnd");
-					else if (r8 <= 0.65) loot.GetInventory().CreateAttachment("Mag_CMAG_10Rnd");
-					else if (r8 <= 0.90) loot.GetInventory().CreateAttachment("Mag_CMAG_20Rnd");
-					else                loot.GetInventory().CreateAttachment("Mag_CMAG_30Rnd");
-				}
-				break;
-			}
-
-			case "M16A2":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("M16A2", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.3, 0.7));
-
-				if (Math.RandomFloat01() <= 0.30)
-				{
-					float r9 = Math.RandomFloat01();
-					if (r9 <= 0.15)      loot.GetInventory().CreateAttachment("Mag_CMAG_40Rnd");
-					else if (r9 <= 0.65) loot.GetInventory().CreateAttachment("Mag_CMAG_10Rnd");
-					else if (r9 <= 0.90) loot.GetInventory().CreateAttachment("Mag_CMAG_20Rnd");
-					else                loot.GetInventory().CreateAttachment("Mag_CMAG_30Rnd");
-				}
-				break;
-			}
-
-			case "FAMAS":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("FAMAS", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.3, 0.7));
-
-				if (Math.RandomFloat01() <= 0.75) loot.GetInventory().CreateAttachment("Mag_FAMAS_25Rnd");
-				break;
-			}
-
-			case "Aug":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("Aug", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.3, 1.0));
-
-				if (Math.RandomFloat01() <= 0.25) loot.GetInventory().CreateAttachment("Mag_Aug_30Rnd");
-
-				if (Math.RandomFloat01() <= 0.30)
-				{
-					float r10 = Math.RandomFloat01();
-					if (r10 < 0.25)      loot.GetInventory().CreateAttachment("BUISOptic");
-					else if (r10 < 0.50) loot.GetInventory().CreateAttachment("M4_T3NRDSOptic");
-					else if (r10 < 0.75) loot.GetInventory().CreateAttachment("ReflexOptic");
-					else               loot.GetInventory().CreateAttachment("ACOGOptic");
-				}
-
-				if (Math.RandomFloat01() <= 0.10) loot.GetInventory().CreateAttachment("TLRLight");
-				break;
-			}
-
-			case "AugShort":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("AugShort", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.3, 0.7));
-
-				if (Math.RandomFloat01() <= 0.25) loot.GetInventory().CreateAttachment("Mag_Aug_30Rnd");
-				break;
-			}
-
-			/* ------------------------------------------------------------- */
-			/*  Battle rifle / DMR                                           */
-			/* ------------------------------------------------------------- */
-			case "FAL":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("FAL", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.45, 0.85));
-
-				if (Math.RandomFloat01() <= 1.00)
-				{
-					if (Math.RandomFloat01() <= 0.33) loot.GetInventory().CreateAttachment("Fal_FoldingBttstck");
-					else                              loot.GetInventory().CreateAttachment("Fal_OeBttstck");
-				}
-
-				if (Math.RandomFloat01() <= 0.20)
-				{
-					float r11 = Math.RandomFloat01();
-					if (r11 < 0.20)      loot.GetInventory().CreateAttachment("BUISOptic");
-					else if (r11 < 0.40) loot.GetInventory().CreateAttachment("M68Optic");
-					else if (r11 < 0.60) loot.GetInventory().CreateAttachment("M4_T3NRDSOptic");
-					else if (r11 < 0.80) loot.GetInventory().CreateAttachment("ReflexOptic");
-					else               loot.GetInventory().CreateAttachment("ACOGOptic");
-				}
-
-				if (Math.RandomFloat01() <= 0.10) loot.GetInventory().CreateAttachment("Mag_FAL_20Rnd");
-				break;
-			}
-
-			case "SVD":
-            case "SVD_Wooden":
-            {
-                string baseName;
-                if (weaponName == "SVD")
-                    baseName = "SVD";
-                else
-                    baseName = "SVD_Wooden";
-
-                loot = ItemBase.Cast(GetGame().CreateObject(baseName, pos));
-                if (!loot) break;
-                loot.SetHealth01("", "", Math.RandomFloat(0.3, 0.7));
-
-                if (Math.RandomFloat01() <= 0.10)
-                    loot.GetInventory().CreateAttachment("Mag_SVD_10Rnd");
-
-                if (Math.RandomFloat01() <= 0.50)
-                {
-                    if (Math.RandomFloat01() <= 0.50)
-                        loot.GetInventory().CreateAttachment("KashtanOptic");
-                    else
-                        loot.GetInventory().CreateAttachment("PSO11Optic");
-                }
-                break;
-            }
-
-			case "Scout":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("Scout", pos));
-				if (!loot) break;
-
-				if (Math.RandomFloat01() <= 0.75) loot.GetInventory().CreateAttachment("Mag_Scout_5Rnd");
-
-				if (Math.RandomFloat01() <= 0.25)
-				{
-					float r12 = Math.RandomFloat01();
-					if (r12 < 0.20)      loot.GetInventory().CreateAttachment("M68Optic");
-					else if (r12 < 0.40) loot.GetInventory().CreateAttachment("ACOGOptic");
-					else if (r12 < 0.60) loot.GetInventory().CreateAttachment("ACOGOptic_6x");
-					else if (r12 < 0.80) loot.GetInventory().CreateAttachment("MK4Optic_Black");
-					else               loot.GetInventory().CreateAttachment("M4_Suppressor");
-				}
-				break;
-			}
-
-			case "CZ550":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("CZ550", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.3, 0.7));
-
-				if (Math.RandomFloat01() <= 0.20)
-				{
-					if (Math.RandomFloat01() <= 0.90) loot.GetInventory().CreateAttachment("SportingOptic");
-					else                              loot.GetInventory().CreateAttachment("HuntingOptic");
-				}
-
-				if (Math.RandomFloat01() <= 0.30) loot.GetInventory().CreateAttachment("Mag_CZ550_10rnd");
-				break;
-			}
-
-			case "R12":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("R12", pos));
-				if (!loot) break;
-
-				if (Math.RandomFloat01() <= 0.30) loot.GetInventory().CreateAttachment("UniversalLight");
-				if (Math.RandomFloat01() <= 0.30) loot.GetInventory().CreateAttachment("ReflexOptic");
-				break;
-			}
-
-			case "M14":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("M14", pos));
-				if (!loot) break;
-
-				if (Math.RandomFloat01() <= 0.25)
-				{
-					if (Math.RandomFloat01() < 0.70) loot.GetInventory().CreateAttachment("Mag_M14_10Rnd");
-					else                              loot.GetInventory().CreateAttachment("Mag_M14_20Rnd");
-				}
-
-				if (Math.RandomFloat01() <= 0.30)
-				{
-					float r13 = Math.RandomFloat01();
-					if (r13 < 0.30)      loot.GetInventory().CreateAttachment("M4_T3NRDSOptic");
-					else if (r13 < 0.60) loot.GetInventory().CreateAttachment("ReflexOptic");
-					else if (r13 < 0.90) loot.GetInventory().CreateAttachment("ACOGOptic");
-					else               loot.GetInventory().CreateAttachment("ACOGOptic_6x");
-				}
-				break;
-			}
-
-			/* ------------------------------------------------------------- */
-			/*  Misc (M79 GL, Saiga, B95…)                                   */
-			/* ------------------------------------------------------------- */
-			case "M79":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("M79", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.45, 1.0));
-				break;
-			}
-
-			case "Saiga":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("Saiga", pos));
-				if (!loot) break;
-
-				loot.GetInventory().CreateAttachment("Saiga_Bttstck");
-
-				if (Math.RandomFloat01() <= 0.10)
-				{
-					if (Math.RandomFloat01() <= 0.60) loot.GetInventory().CreateAttachment("Mag_Saiga_5Rnd");
-					else                              loot.GetInventory().CreateAttachment("Mag_Saiga_8Rnd");
-				}
-				break;
-			}
-
-			case "B95":
-			{
-				loot = ItemBase.Cast(GetGame().CreateObject("B95", pos));
-				if (!loot) break;
-				loot.SetHealth01("", "", Math.RandomFloat(0.3, 0.7));
-
-				if (Math.RandomFloat01() <= 0.20)
-				{
-					if (Math.RandomFloat01() < 0.90) loot.GetInventory().CreateAttachment("SportingOptic");
-					else                              loot.GetInventory().CreateAttachment("HuntingOptic");
-				}
-				break;
-			}
-
-			/* ------------------------------------------------------------- */
-			/*  Default – non-weapon items                                   */
-			/* ------------------------------------------------------------- */
-			default:
-				//! nothing: item already spawned by FillContainerWithRandomLoot()
-				break;
-		}
-	}
-	
-	static ref set<string> m_WeaponNames;
-
-    static void InitWeaponNames()
-    {
-	    if (!m_WeaponNames)
-	    {
-		    m_WeaponNames = new set<string>;
-		    m_WeaponNames.Insert("FNX45");
-	    	m_WeaponNames.Insert("VSS");
-	    	m_WeaponNames.Insert("ASVAL");
-	    	m_WeaponNames.Insert("Vikhr");
-		    m_WeaponNames.Insert("SV98");
-		    m_WeaponNames.Insert("Winchester70");
-		    m_WeaponNames.Insert("Mosin9130");
-		    m_WeaponNames.Insert("SKS");
-	    	m_WeaponNames.Insert("AK74");
-		    m_WeaponNames.Insert("AKS74U");
-		    m_WeaponNames.Insert("AK101");
-		    m_WeaponNames.Insert("M4A1");
-		    m_WeaponNames.Insert("M16A2");
-	    	m_WeaponNames.Insert("FAMAS");
-		    m_WeaponNames.Insert("AUG");
-		    m_WeaponNames.Insert("AUGShort");
-		    m_WeaponNames.Insert("FAL");
-		    m_WeaponNames.Insert("SVD");
-		    m_WeaponNames.Insert("SVD_Wooden");
-		    m_WeaponNames.Insert("B95");
-		    m_WeaponNames.Insert("Saiga");
-		    m_WeaponNames.Insert("Scout");
-		    m_WeaponNames.Insert("CZ550");
-		    m_WeaponNames.Insert("M14");
-		    m_WeaponNames.Insert("Engraved1911");
-		    m_WeaponNames.Insert("Deagle");
-	    	m_WeaponNames.Insert("Deagle_Gold");
-		    m_WeaponNames.Insert("R12");
-	    }
-    }
-
-    static bool IsWeapon(string name)
-    {
-	    InitWeaponNames();
-	    return m_WeaponNames.Find(name) != -1;
-    }
-	
-};
+}

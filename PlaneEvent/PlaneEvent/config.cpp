@@ -2,7 +2,7 @@ class CfgPatches
 {
     class PlaneEvent
     {
-        units[] = {"FlyingCargoPlane"};
+        units[] = {};
         weapons[] = {};
         requiredAddons[] = {"DZ_Data"};
     };
@@ -46,11 +46,116 @@ class CfgMods
 
 class CfgVehicles
 {
-	class HouseNoDestruct;
-	class PlaneCrash: HouseNoDestruct
+	class Land_Wreck_C130J_Cargo;
+	class Land_ContainerLocked_Red_DE;
+	class Land_ContainerLocked_Blue_DE;
+	class Land_ContainerLocked_Yellow_DE;
+	class Land_ContainerLocked_Orange_DE;
+	class Container_Base;
+	class PlaneCrash: Land_Wreck_C130J_Cargo
 	{
 		scope=2;
-		model="\DZ\structures\Wrecks\Aircraft\Wreck_C130J_Cargo.p3d";
 		forceNavMesh=1;
+	};
+	class WreckContainerRed: Land_ContainerLocked_Red_DE
+	{
+		scope=2;
+		forceNavMesh=1;
+		attachments[]=
+		{
+		    "Truck_01_WoodenCrate1"
+		};
+		class GUIInventoryAttachmentsProps
+		{
+			class Cargo
+			{
+				name="Cargo";
+				attachmentSlots[]=
+				{
+					"Truck_01_WoodenCrate1"
+				};
+			};
+			
+		};
+	};
+	class WreckContainerBlue: Land_ContainerLocked_Blue_DE
+	{
+		scope=2;
+		forceNavMesh=1;
+		attachments[]=
+		{
+		    "Truck_01_WoodenCrate1"
+		};
+		class GUIInventoryAttachmentsProps
+		{
+			class Cargo
+			{
+				name="Cargo";
+				attachmentSlots[]=
+				{
+					"Truck_01_WoodenCrate1"
+				};
+			};
+			
+		};
+	};
+	class WreckContainerYellow: Land_ContainerLocked_Yellow_DE
+	{
+		scope=2;
+		forceNavMesh=1;
+		attachments[]=
+		{
+		    "Truck_01_WoodenCrate1"
+		};
+		class GUIInventoryAttachmentsProps
+		{
+			class Cargo
+			{
+				name="Cargo";
+				attachmentSlots[]=
+				{
+					"Truck_01_WoodenCrate1"
+				};
+			};
+			
+		};
+	};
+	class WreckContainerOrange: Land_ContainerLocked_Orange_DE
+	{
+		scope=2;
+		forceNavMesh=1;
+		attachments[]=
+		{
+		    "Truck_01_WoodenCrate1"
+		};
+		class GUIInventoryAttachmentsProps
+		{
+			class Cargo
+			{
+				name="Cargo";
+				attachmentSlots[]=
+				{
+					"Truck_01_WoodenCrate1"
+				};
+			};
+			
+		};
+	};
+	class RuckCrashStorage: Container_Base
+	{
+		scope=2;
+		model="DZ\structures\Military\Misc\Misc_SupplyBox2.p3d";
+		displayName="";
+		descriptionShort="";
+		inventorySlot[]=
+		{
+			"Truck_01_WoodenCrate1"
+		};
+		class Cargo
+		{
+			itemsCargoSize[]={10,100};
+			openable=0;
+			allowOwnedCargoManipulation=1;
+		};
 	};
 };
