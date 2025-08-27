@@ -1,43 +1,61 @@
 modded class PlayerBase
 {
-    protected string m_LastMapName;
+	protected string m_LastMapName;
 
-    override void EEInit()
-    {
-        super.EEInit();
+	override void OnSelectPlayer()
+	{
+		super.OnSelectPlayer();
 
-        string currentMap = GetGame().GetWorldName();
+		// Delay the sit-crossed emote by 0.5 seconds after full spawn
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ForceSitCrossed, 500, false);
+	}
 
-        if (m_LastMapName != "" && m_LastMapName != currentMap)
-        {
-            Print("[CrossMapSpawn] Player switched maps: " + m_LastMapName + " → " + currentMap);
+	void ForceSitCrossed()
+	{
+		EmoteManager em = GetEmoteManager();
+		if (em && !em.IsEmotePlaying())
+		{
+			em.PlayEmote(EmoteConstants.ID_EMOTE_SITA); // Sit Crossed to avoid navmesh bugs with some modded maps seems to fix the issue if not just use any laydown or sitdwon emoji ingame or simply relog
+		}
+	}
 
-            vector spawnPos = GetRandomSpawnForCurrentMap();
-            SetPosition(spawnPos);
-            Print("[CrossMapSpawn] Relocated player to: " + spawnPos);
-        }
+	override void OnConnect()
+	{
+		super.OnConnect();
 
-        // Update last map name
-        m_LastMapName = currentMap;
-    }
+		string currentMap = GetGame().GetWorldName();
 
-    override void OnStoreSave(ParamsWriteContext ctx)
-    {
-        super.OnStoreSave(ctx);
-        ctx.Write(m_LastMapName);
-    }
+		if (m_LastMapName != "" && m_LastMapName != currentMap)
+		{
+			Print("[CrossMapSpawn] Player switched maps: " + m_LastMapName + " → " + currentMap);
 
-    override bool OnStoreLoad(ParamsReadContext ctx, int version)
-    {
-        if (!super.OnStoreLoad(ctx, version))
-            return false;
+			vector spawnPos = GetRandomSpawnForCurrentMap();
+			spawnPos[1] = GetGame().SurfaceY(spawnPos[0], spawnPos[2]); // Adjust to terrain
+			SetPosition(spawnPos);
+			Print("[CrossMapSpawn] Relocated player to: " + spawnPos);
+		}
 
-        if (!ctx.Read(m_LastMapName))
-            m_LastMapName = "";
+		// Update last map name
+		m_LastMapName = currentMap;
+	}
 
-        return true;
-    }
+	override void OnStoreSave(ParamsWriteContext ctx)
+	{
+		super.OnStoreSave(ctx);
+		ctx.Write(m_LastMapName);
+	}
 
+	override bool OnStoreLoad(ParamsReadContext ctx, int version)
+	{
+		if (!super.OnStoreLoad(ctx, version))
+			return false;
+
+		if (!ctx.Read(m_LastMapName))
+			m_LastMapName = "";
+
+		return true;
+	}
+	
     vector GetRandomSpawnForCurrentMap()
     {
         string mapName = GetGame().GetWorldName();
@@ -63,7 +81,23 @@ modded class PlayerBase
         {
             spawns = GetAlteriaSpawns();
         }
-
+		else if (mapName == "banov")
+        {
+            spawns = GetBanovSpawns();
+        }
+		else if (mapName == "GreenCounty")
+        {
+            spawns = GetGreenCountySpawns();
+        }
+        else if (mapName == "hashima")
+        {
+            spawns = GetHashimaSpawns();
+        }
+        else if (mapName == "Bitterroot")
+        {
+            spawns = GetBitterrootSpawns();
+        }
+		
         if (spawns && spawns.Count() > 0)
         {
             vector pos = spawns.GetRandomElement();
@@ -74,7 +108,186 @@ modded class PlayerBase
         // Fallback position
         return Vector(7500, 0, 7500);
     }
+	
+	// 🆕 Bitterroot 
+	array<vector> GetBitterrootSpawns()
+    {
+        return {
+			"6011.67 0 451.51",
+			"5677.1 0 499.186",
+			"5409.05 0 364.785",
+			"7523.17 0 399.026",
+			"7298.04 0 352.745",
+			"9466.11 0 1060.91",
+			"9705.39 0 989.286",
+			"10323.5 0 970.739",
+			"11099.6 0 947.761",
+			"10787 0 2308.9",
+			"10862.3 0 2471.53",
+			"7018.58 0 1784.66",
+			"6962.98 0 1947.57",
+			"11079.4 0 1323.63",
+			"5864.18 0 362.694",
+			"4158.05 0 555.862",
+			"3693.04 0 652.218",
+			"7041.41 0 519.902",
+			"7274.06 0 774.439",
+			"10178.8 0 1287.85",
+			"10621.7 0 1716.67",
+			"10607.3 0 2379.96",
+			"10783.8 0 2642.34",
+			"10479.2 0 2827.28",
+			"10337.2 0 3090.79",
+			"6809.37 0 1779.68",
+			"10487.7 0 3033.52",
+			"3909.82 0 519.948",
+			"10376.2 0 1812.65"
+        };
+    }
+	
+	// 🆕 Hashima Islands
+	array<vector> GetHashimaSpawns()
+    {
+        return {
+			"521.197021 0 993.689758",
+			"626.459961 0 1644.544189",
+			"627.494202 0 954.253723",
+			"647.846375 0 1860.984009",
+			"657.630554 0 1225.115845",
+			"688.981873 0 2084.899414",
+			"697.149170 0 843.116577",
+			"703.759705 0 1481.154663",
+			"704.648865 0 595.885254",
+			"706.920837 0 2285.627441",
+			"814.867798 0 1343.780273",
+			"832.315369 0 1047.422729",
+			"938.202148 0 2545.526367",
+			"952.964233 0 2331.123535",
+			"979.634216 0 714.423584",
+			"999.961792 0 1200.786255",
+			"1086.213989 0 1002.673828",
+			"1088.931641 0 1454.735474",
+			"1118.063232 0 2420.846436",
+			"1316.120483 0 1524.378418",
+			"1335.175659 0 1195.356567",
+			"1476.559570 0 1404.727783",
+			"1639.076660 0 1537.885498",
+			"1670.963135 0 1286.978271",
+			"1982.732178 0 1335.397705"
+        };
+    }
+	// 🆕 Green County
+	array<vector> GetGreenCountySpawns()
+    {
+        return {
+			"693.965 0 8005.06",
+			"780.749 0 7837.18",
+			"622.848 0 7715.48",
+			"832.036 0 7968.37",
+			"947.545 0 7646.31",
+			"801.174 0 7209.11",
+			"243.971 0 6490.07",
+			"567.72 0 6198.91",
+			"867.621 0 5828.4",
+			"1011.19 0 5502.54",
+			"143.388 0 5336.99",
+			"699.537 0 4903.4",
+			"115.115 0 4002.5",
+			"587.895 0 4178.92",
+			"906.283 0 4494.81",
+			"877.121 0 4571.83",
+			"727.364 0 4150.83",
+			"951.551 0 4386.71",
+			"1149.18 0 4350.43",
+			"119.745 0 3692.75",
+			"626.343 0 3932.91",
+			"664.537 0 3474.51",
+			"427.722 0 3610.33",
+			"860.545 0 3707.87",
+			"405.577 0 3960.44",
+			"1260.46 0 4102.18",
+			"1416.41 0 4252.29",
+			"1092.9 0 3564.31",
+			"1104.97 0 3349.6",
+			"1326.92 0 3619.8",
+			"1436.44 0 3501.18",
+			"1603.73 0 3336.79",
+			"1177.93 0 3313.44",
+			"2064.64 0 3907.63",
+			"662.025 0 3380.04",
+			"592.423 0 3208.46",
+			"806.953 0 2860.29",
+			"803.006 0 2662.88",
+			"767.032 0 2000.87",
+			"56.2296 0 1005.05",
+			"293.276 0 892.589",
+			"287.485 0 1430.46",
+			"989.022 0 903.158",
+			"835.79 0 928.101"
+        };
+    }
 
+	
+	// 🆕 Banov spawns
+    array<vector> GetBanovSpawns()
+    {
+        return {
+            "7185.2 0 1215.59",
+			"7415.3 0 1377.87",
+			"9554.58 0 1434.1", 
+			"9816.96 0 1262.47", 
+			"10037.9 0 1323.62", 
+			"10292.4 0 1422.26", 
+			"10047.8 0 1447.91",
+			"9390.83 0 1337.43",
+			"12833.3 0 390.976",
+			"12918 0 309.321",
+			"12922.6 0 212.261",
+			"4522.78 0 224.519",
+			"4646.1 0 264.47",
+			"989.485 0 207.679",
+			"1181.15 0 216.452",
+			"1256.04 0 143.826",
+			"909.437 0 477.082",
+			"4855.8 0 268.358",
+			"3115.94 0 216.179",
+			"3555.75 0 182.633",
+			"2545.53 0 495.719",
+			"5597.51 0 600.08",
+			"6037.32 0 402.539",
+			"6242.32 0 626.17",
+			"6428.68 0 331.722",
+			"6506.95 0 790.167",
+			"6793.94 0 741.714",
+			"6603.86 0 1073.43",
+			"7040.09 0 1051.07",
+			"7181.72 0 1151.71",
+			"7353.17 0 1151.71",
+			"7586.65 0 1263.52",
+			"9357.96 0 1244.89",
+			"9749.32 0 1039.89",
+			"10054.9 0 1095.8",
+			"10304.7 0 1282.16",
+			"12423.4 0 196.783",
+			"12686.8 0 145.317",
+			"12880.5 0 105.96",
+			"12674.7 0 460.169",
+			"12535.4 0 302.743",
+			"805.122 0 670.936",
+			"2795.43 0 310.247",
+			"3389.91 0 314.87",
+			"4289.37 0 155.013",
+			"5258.3 0 392.377",
+			"5843.76 0 531.015",
+			"6287.87 0 463.778",
+			"6200.68 0 209.461",
+			"6353.27 0 643.011",
+			"6617.28 0 679.342",
+			"6501.02 0 953.036",
+			"6943 0 1225.28"
+        };
+    }
+	
     // 🆕 Deerisle spawns
     array<vector> GetDeerisleSpawns()
     {
@@ -143,7 +356,6 @@ modded class PlayerBase
             "3615 0 7446",
             "3239 0 5733",
             "3019 0 5210",
-            "2349 0 5216",
             "1302 0 4627",
             "1085 0 4061",
             "3260 0 5950",
@@ -324,4 +536,4 @@ modded class PlayerBase
 			"13428.8125 0 7629.255859"
 		};
 	}	
-}
+} 
