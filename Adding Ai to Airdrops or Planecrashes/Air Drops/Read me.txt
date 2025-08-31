@@ -1,5 +1,7 @@
-If you wish to add expansion ai instead of zombies or aswell to the mod add the following .json files to the expansion loadouts located in profiles these are preset to spawn the matching key. the loadous you can simply copy and paste the files into the loadouts folder, Aipatrolsettings you will need to copy and paste and make sure the code structure is valid.
-Then add the AiPatrolsettings into your exsisting ai patrol settings located in mpmisssions if you don't want them to spawn the key simply remove the loadout in patrolsettings example .change it from this
+If you wish to add expansion ai instead of zombies or aswell to the mod add the following .json files to the expansion loadouts located in profiles these are preset to spawn the matching key. 
+The loadouts you can simply copy and paste the files into the loadouts folder, 
+Aipatrolsettings you will need to copy and paste into your exsisting aipatrolsettingsand make sure the code structure is valid located in mpmisssions.
+If you don't want the ai to spawn the key simply remove the loadout in patrolsettings example .change it from this
 	{
             "Name": "",
             "Persist": 0,
@@ -76,5 +78,6 @@ Then add the AiPatrolsettings into your exsisting ai patrol settings located in 
             "UseRandomWaypointAsStartPoint": 0,
             "Waypoints": []
         }
+
 
 there are plenty of guides out there of how to set up Aipatrols if you need help just ask google.
