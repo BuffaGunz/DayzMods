@@ -1,6 +1,6 @@
 class CfgPatches
 {
-	class RuckCarScripts
+	class RuckCarAttachments
 	{
 		units[]={};
 		weapons[]={};
@@ -13,14 +13,14 @@ class CfgPatches
 
 class CfgMods
 {
-	class RuckCarScripts
+	class RuckCarAttachments
 	{
-		dir="RuckCarScripts";
+		dir="RuckCarAttachments";
 		picture="";
 		action="";
 		hideName=1;
 		hidePicture=1;
-		name="Ruck Car Scripts";
+		name="Ruck Car Attachments";
 		credits="";
 		author="BuffaGunz";
 		authorID="";
@@ -39,7 +39,7 @@ class CfgMods
 			{
 				files[]=
 				{
-					"RuckCarScripts\GUI\ImageSet\RuckCarAttachments.imageset",
+					"RuckCarAttachments\GUI\ImageSet\RuckCarAttachments.imageset",
 				};
 			};
 		};	

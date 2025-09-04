@@ -5,48 +5,73 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Vehicles_Wheeled","DZ_Vehicles_Water"};
+		requiredAddons[] = 
+		{
+			"DZ_Data",
+			"DZ_Vehicles_Wheeled",
+			"DZ_Vehicles_Water",
+			"DZ_Gear_Medical",
+			"DZ_Weapons_Melee",
+			"DZ_Gear_Tools"
+		};
 	};
 };
+
 class CfgSlots
 {
-	class Slot_sea_chest
+	class Slot_SeaChest
 	{
-		name="sea_chest";
+		name="SeaChest";
 		displayName="$STR_CfgVehicles_SeaChest0";
-		selection="sea_chest";
-		ghostIcon="";
+		ghostIcon="set:RuckCarAttachments image:SeaChest";
 	};
-	class Slot_CanisterGasoline
+	class Slot_JerryCan
 	{
-		name="CanisterGasoline";
-		displayName="JerryCan";
-		selection="CanisterGasoline";
-		ghostIcon="";
+		name="JerryCan";
+		displayName="$STR_CfgVehicles_CanisterGasoline0";
+		ghostIcon="set:RuckCarAttachments image:JerryCan";
 	};
 	class Slot_TireRepairKit
 	{
 		name = "TireRepairKit";
 		displayName = "$STR_CfgVehicles_TireRepairKit0";
-		selection="TireRepairKit";
-		ghostIcon = "";
+		ghostIcon="set:RuckCarAttachments image:TireRepairKit";
 	};
-
+	class Slot_TireIron
+	{
+		name = "TireIron";
+		displayName = "$STR_CfgVehicles_LugWrench0";
+		ghostIcon="set:RuckCarAttachments image:TireIron";
+	};
+	class Slot_FirstAidKit
+	{
+		name = "FirstAidKit";
+		displayName = "$STR_CfgVehicles_FirstAidKit0";
+		ghostIcon="set:RuckCarAttachments image:FirstAidKit";
+	};
+	class Slot_Map
+	{
+		name = "Map";
+		displayName = "$STR_CfgVehicles_ChernarusMap0";
+		ghostIcon="set:RuckCarAttachments image:Map";
+	};
+	class Slot_FishingRod
+	{
+		name = "FishingRod";
+		displayName = "$STR_CfgVehicles_FishingRod0";
+		ghostIcon="set:RuckCarAttachments image:FishingRod";
+	};
 };
+
 class CfgVehicles
 {
-	class SimulationModule
-	{	
-	};
+	class SimulationModule;
 	class Bottle_Base;
 	class CanisterGasoline: Bottle_Base
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"CanisterGasoline",
-			"CanisterGasoline2",
-			"CanisterGasoline_1",
-			"CanisterGasoline_2"
+			"JerryCan"
 		};
 	};
 	class Container_Base;
@@ -54,26 +79,54 @@ class CfgVehicles
 	{
 		inventorySlot[]+=
 		{
-			"sea_chest",
-			"sea_chest_1",
-			"sea_chest_2",
-			"sea_chest_3",
-			"sea_chest_4",
-			"sea_chest1",
-			"sea_chest2"
+			"SeaChest"
 		};
 	};
 	class Inventory_Base;
 	class TireRepairKit: Inventory_Base
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"TireRepairKit",
-			"TireRepairKit2",
-			"TireRepairKit_1",
-			"TireRepairKit_2"
+			"TireRepairKit"
 		};
 	};
+	class LugWrench: Inventory_Base
+	{
+		inventorySlot[]+=
+		{
+			"TireIron"
+		};
+	};
+	class FirstAidKit: Container_Base
+	{
+		inventorySlot[]+=
+		{
+			"FirstAidKit"
+		};
+	};	
+	class ItemMap;
+	class ChernarusMap: ItemMap
+	{
+		inventorySlot[]+=
+		{
+			"Map"
+		};
+	};	
+	class FishingRod_Base_New;
+	class ImprovisedFishingRod: FishingRod_Base_New
+	{
+		inventorySlot[]+=
+		{
+			"FishingRod"
+		};
+	};	
+	class FishingRod: FishingRod_Base_New
+	{
+		inventorySlot[]+=
+		{
+			"FishingRod"
+		};
+	};	
     class CarScript;
     class OffroadHatchback: CarScript
 	{
@@ -83,32 +136,23 @@ class CfgVehicles
 		model="\dz\vehicles\wheeled\OffroadHatchback\OffroadHatchback.p3d";
 		fuelCapacity=60;
 		fuelConsumption=8;
-		attachments[]=
+		attachments[]+=
 		{
-			"CarBattery",
-			"Reflector_1_1",
-			"Reflector_2_1",
-			"CarRadiator",
-			"SparkPlug",
-			"NivaDriverDoors",
-			"NivaCoDriverDoors",
-			"NivaHood",
-			"NivaTrunk",
-			"NivaWheel_1_1",
-			"NivaWheel_1_2",
-			"NivaWheel_2_1",
-			"NivaWheel_2_2",
-			"NivaWheel_Spare_1",
 			"Shoulder",
 			"Back",
-			"Truck_01_WoodenCrate1",
-			"Truck_01_WoodenLogs",
+		    "Truck_01_WoodenCrate1",
+		    "Truck_01_WoodenLogs",
 			"Truck_01_WoodenPlanks",
 			"Truck_01_MetalSheets",
-			"sea_chest",
-			"CanisterGasoline",
+			"SeaChest",
+			"JerryCan",
 			"TireRepairKit",
-			"Camonet"
+			"Camonet",
+			"Backpack_1",
+			"FishingRod",
+			"Map",
+			"FirstAidKit",
+			"TireIron"
 		};
 		class SimulationModule: SimulationModule
 		{
@@ -119,6 +163,14 @@ class CfgVehicles
 				gentleThrust=0.7;
 				turboCoef=4;
 				gentleCoef=0.75;
+			};
+			class Brake
+			{
+				pressureBySpeed[]={0,0.8,10,0.8,20,0.8,40,0.8,60,0.8,80,0.8,100,0.8,120,0.8,150,0.8,200,0.8};
+				gentleCoef=0.7;
+				minPressure=0.2;
+				reactionTime=0.2;
+				driverless=0.1;
 			};
 			drive="DRIVE_AWD";
 			class Engine
@@ -142,26 +194,23 @@ class CfgVehicles
 			    name="$STR_attachment_Body0";
 			    description="";
 			    icon="set:dayz_inventory image:cat_vehicle_body";
-			    attachmentSlots[]=
+			    attachmentSlots[]+=
 			    {
-				    "Reflector_1_1",
-				    "Reflector_2_1",
-				    "NivaHood",
-				    "NivaTrunk",
-				    "NivaDriverDoors",
-				    "NivaCoDriverDoors",
-				    "NivaWheel_Spare_1",
 				    "Shoulder",
-			        "Back",
-			        "Truck_01_WoodenCrate1",
-			        "Truck_01_WoodenLogs",
-			        "Truck_01_WoodenPlanks",
-			        "Truck_01_MetalSheets",
-					"sea_chest",
-					"CanisterGasoline",
+					"Back",
+					"Truck_01_WoodenCrate1",
+					"Truck_01_WoodenLogs",
+					"Truck_01_WoodenPlanks",
+					"Truck_01_MetalSheets",
+					"SeaChest",
+					"JerryCan",
 					"TireRepairKit",
-			        "Camonet"
-				
+					"Camonet",
+					"Backpack_1",
+					"FishingRod",
+					"Map",
+					"FirstAidKit",
+					"TireIron"
 			    };
 		    };
 	    };
@@ -174,34 +223,23 @@ class CfgVehicles
 		model="\DZ\vehicles\wheeled\civiliansedan\CivilianSedan.p3d";
 		fuelCapacity=60;
 		fuelConsumption=8;
-		attachments[]=
+		attachments[]+=
 		{
-			"CarBattery",
-			"Reflector_1_1",
-			"Reflector_2_1",
-			"CarRadiator",
-			"SparkPlug",
-			"CivSedanDriverDoors",
-			"CivSedanCoDriverDoors",
-			"CivSedanCargo1Doors",
-			"CivSedanCargo2Doors",
-			"CivSedanHood",
-			"CivSedanTrunk",
-			"CivSedanWheel_1_1",
-			"CivSedanWheel_1_2",
-			"CivSedanWheel_2_1",
-			"CivSedanWheel_2_2",
-			"CivSedanWheel_Spare_1",
 			"Shoulder",
 			"Back",
-			"Truck_01_WoodenCrate1",
-			"Truck_01_WoodenLogs",
+		    "Truck_01_WoodenCrate1",
+		    "Truck_01_WoodenLogs",
 			"Truck_01_WoodenPlanks",
 			"Truck_01_MetalSheets",
-			"sea_chest",
-			"CanisterGasoline",
+			"SeaChest",
+			"JerryCan",
 			"TireRepairKit",
-			"Camonet"
+			"Camonet",
+			"Backpack_1",
+			"FishingRod",
+			"Map",
+			"FirstAidKit",
+			"TireIron"
 		};
 		class SimulationModule: SimulationModule
 		{
@@ -212,6 +250,14 @@ class CfgVehicles
 				gentleThrust=0.7;
 				turboCoef=6;
 				gentleCoef=0.7;
+			};
+			class Brake
+			{
+				pressureBySpeed[]={0,0.8,10,0.8,20,0.8,40,0.8,60,0.8,80,0.8,100,0.8,120,0.8,150,0.8,200,0.8};
+				gentleCoef=0.7;
+				minPressure=0.2;
+				reactionTime=0.2;
+				driverless=0.1;
 			};
 			drive="DRIVE_RWD";
 			class Engine
@@ -234,27 +280,23 @@ class CfgVehicles
 			    name="$STR_attachment_Body0";
 			    description="";
 			    icon="set:dayz_inventory image:cat_vehicle_body";
-			    attachmentSlots[]=
+			    attachmentSlots[]+=
 			    {
-				    "Reflector_1_1",
-				    "Reflector_2_1",
-				    "CivSedanHood",
-				    "CivSedanTrunk",
-				    "CivSedanDriverDoors",
-				    "CivSedanCoDriverDoors",
-				    "CivSedanCargo1Doors",
-				    "CivSedanCargo2Doors",
-				    "CivSedanWheel_Spare_1",
 				    "Shoulder",
-			        "Back",
-			        "Truck_01_WoodenCrate1",
-			        "Truck_01_WoodenLogs",
-			        "Truck_01_WoodenPlanks",
-			        "Truck_01_MetalSheets",
-					"sea_chest",
-					"CanisterGasoline",
+					"Back",
+					"Truck_01_WoodenCrate1",
+					"Truck_01_WoodenLogs",
+					"Truck_01_WoodenPlanks",
+					"Truck_01_MetalSheets",
+					"SeaChest",
+					"JerryCan",
 					"TireRepairKit",
-			        "Camonet"
+					"Camonet",
+					"Backpack_1",
+					"FishingRod",
+					"Map",
+					"FirstAidKit",
+					"TireIron"
 			    };
 		    };
 	    };
@@ -267,34 +309,23 @@ class CfgVehicles
 		model="\dz\vehicles\wheeled\Hatchback_02\Hatchback_02.p3d";
 		fuelCapacity=60;
 		fuelConsumption=8;
-		attachments[]=
+		attachments[]+=
 		{
-			"CarBattery",
-			"Reflector_1_1",
-			"Reflector_2_1",
-			"CarRadiator",
-			"SparkPlug",
-			"Hatchback_02_Door_1_1",
-			"Hatchback_02_Door_1_2",
-			"Hatchback_02_Door_2_1",
-			"Hatchback_02_Door_2_2",
-			"Hatchback_02_Trunk",
-			"Hatchback_02_Hood",
-			"Hatchback_02_Wheel_1_1",
-			"Hatchback_02_Wheel_1_2",
-			"Hatchback_02_Wheel_2_1",
-			"Hatchback_02_Wheel_2_2",
-			"Hatchback_02_Wheel_Spare_1",
 			"Shoulder",
 			"Back",
-			"Truck_01_WoodenCrate1",
-			"Truck_01_WoodenLogs",
+		    "Truck_01_WoodenCrate1",
+		    "Truck_01_WoodenLogs",
 			"Truck_01_WoodenPlanks",
 			"Truck_01_MetalSheets",
-			"sea_chest",
-			"CanisterGasoline",
+			"SeaChest",
+			"JerryCan",
 			"TireRepairKit",
-			"Camonet"
+			"Camonet",
+			"Backpack_1",
+			"FishingRod",
+			"Map",
+			"FirstAidKit",
+			"TireIron"
 		};
 		class SimulationModule: SimulationModule
 		{
@@ -305,6 +336,14 @@ class CfgVehicles
 				gentleThrust=0.7;
 				turboCoef=4;
 				gentleCoef=0.75;
+			};
+			class Brake
+			{
+				pressureBySpeed[]={0,0.8,10,0.8,20,0.8,40,0.8,60,0.8,80,0.8,100,0.8,120,0.8,150,0.8,200,0.8};
+				gentleCoef=0.7;
+				minPressure=0.2;
+				reactionTime=0.2;
+				driverless=0.1;
 			};
 			drive="DRIVE_FWD";
 			class Engine
@@ -327,27 +366,23 @@ class CfgVehicles
 			    name="$STR_attachment_Body0";
 			    description="";
 			    icon="set:dayz_inventory image:cat_vehicle_body";
-			    attachmentSlots[]=
+			    attachmentSlots[]+=
 			    {
-				    "Reflector_1_1",
-				    "Reflector_2_1",
-				    "Hatchback_02_Door_1_1",
-				    "Hatchback_02_Door_1_2",
-				    "Hatchback_02_Door_2_1",
-				    "Hatchback_02_Door_2_2",
-				    "Hatchback_02_Hood",
-				    "Hatchback_02_Trunk",
-				    "Hatchback_02_Wheel_Spare_1",
 				    "Shoulder",
-			        "Back",
-			        "Truck_01_WoodenCrate1",
-			        "Truck_01_WoodenLogs",
-			        "Truck_01_WoodenPlanks",
-			        "Truck_01_MetalSheets",
-					"sea_chest",
-					"CanisterGasoline",
+					"Back",
+					"Truck_01_WoodenCrate1",
+					"Truck_01_WoodenLogs",
+					"Truck_01_WoodenPlanks",
+					"Truck_01_MetalSheets",
+					"SeaChest",
+					"JerryCan",
 					"TireRepairKit",
-			        "Camonet"
+					"Camonet",
+					"Backpack_1",
+					"FishingRod",
+					"Map",
+					"FirstAidKit",
+					"TireIron"
 			    };
 		    };
 	    };
@@ -359,35 +394,23 @@ class CfgVehicles
 		model="\DZ\vehicles\wheeled\Sedan_02\Sedan_02.p3d";
 		fuelCapacity=60;
 		fuelConsumption=8;
-		attachments[]=
+		attachments[]+=
 		{
-			"CarBattery",
-			"Reflector_1_1",
-			"Reflector_2_1",
-			"CarRadiator",
-			"EngineBelt",
-			"SparkPlug",
-			"Sedan_02_Hood",
-			"Sedan_02_Trunk",
-			"Sedan_02_Door_1_1",
-			"Sedan_02_Door_2_1",
-			"Sedan_02_Door_1_2",
-			"Sedan_02_Door_2_2",
-			"Sedan_02_Wheel_1_1",
-			"Sedan_02_Wheel_1_2",
-			"Sedan_02_Wheel_2_1",
-			"Sedan_02_Wheel_2_2",
-			"Sedan_02_Wheel_Spare_1",
 			"Shoulder",
 			"Back",
-			"Truck_01_WoodenCrate1",
-			"Truck_01_WoodenLogs",
+		    "Truck_01_WoodenCrate1",
+		    "Truck_01_WoodenLogs",
 			"Truck_01_WoodenPlanks",
 			"Truck_01_MetalSheets",
-			"sea_chest",
-			"CanisterGasoline",
+			"SeaChest",
+			"JerryCan",
 			"TireRepairKit",
-			"Camonet"
+			"Camonet",
+			"Backpack_1",
+			"FishingRod",
+			"Map",
+			"FirstAidKit",
+			"TireIron"
 		};
 		class SimulationModule: SimulationModule
 		{
@@ -398,6 +421,14 @@ class CfgVehicles
 				gentleThrust=0.7;
 				turboCoef=4;
 				gentleCoef=0.75;
+			};
+			class Brake
+			{
+				pressureBySpeed[]={0,0.8,10,0.8,20,0.8,40,0.8,60,0.8,80,0.8,100,0.8,120,0.8,150,0.8,200,0.8};
+				gentleCoef=0.7;
+				minPressure=0.2;
+				reactionTime=0.2;
+				driverless=0.1;
 			};
 			drive="DRIVE_RWD";
 			class Engine
@@ -420,30 +451,75 @@ class CfgVehicles
 			    name="$STR_attachment_Body0";
 			    description="";
 			    icon="set:dayz_inventory image:cat_vehicle_body";
-			    attachmentSlots[]=
+			    attachmentSlots[]+=
 			    {
-				    "Reflector_1_1",
-				    "Reflector_2_1",
-				    "Sedan_02_Door_1_1",
-				    "Sedan_02_Door_2_1",
-				    "Sedan_02_Door_1_2",
-				    "Sedan_02_Door_2_2",
-				    "Sedan_02_Hood",
-				    "Sedan_02_Trunk",
 				    "Shoulder",
-			        "Back",
-			        "Truck_01_WoodenCrate1",
-			        "Truck_01_WoodenLogs",
-			        "Truck_01_WoodenPlanks",
-			        "Truck_01_MetalSheets",
-					"sea_chest",
-					"CanisterGasoline",
+					"Back",
+					"Truck_01_WoodenCrate1",
+					"Truck_01_WoodenLogs",
+					"Truck_01_WoodenPlanks",
+					"Truck_01_MetalSheets",
+					"SeaChest",
+					"JerryCan",
 					"TireRepairKit",
-			        "Camonet"
+					"Camonet",
+					"Backpack_1",
+					"FishingRod",
+					"Map",
+					"FirstAidKit",
+					"TireIron"
 			    };
 		    };
 	    };	
     };
+	class Offroad_02: CarScript
+	{
+		attachments[]+=
+		{
+			"Shoulder",
+			"Back",
+		    "Truck_01_WoodenCrate1",
+		    "Truck_01_WoodenLogs",
+			"Truck_01_WoodenPlanks",
+			"Truck_01_MetalSheets",
+			"SeaChest",
+			"JerryCan",
+			"TireRepairKit",
+			"Camonet",
+			"Backpack_1",
+			"FishingRod",
+			"Map",
+			"FirstAidKit",
+			"TireIron"
+		};
+		class GUIInventoryAttachmentsProps
+		{
+			class Body
+			{
+				name="$STR_attachment_Body0";
+				description="";
+				icon="set:dayz_inventory image:cat_vehicle_body";
+				attachmentSlots[]+=
+				{
+					"Shoulder",
+					"Back",
+					"Truck_01_WoodenCrate1",
+					"Truck_01_WoodenLogs",
+					"Truck_01_WoodenPlanks",
+					"Truck_01_MetalSheets",
+					"SeaChest",
+					"JerryCan",
+					"TireRepairKit",
+					"Camonet",
+					"Backpack_1",
+					"FishingRod",
+					"Map",
+					"FirstAidKit",
+					"TireIron"
+				};
+			};
+		};
+	};	
 	class Boat;
 	class BoatScript: Boat
 	{
@@ -474,14 +550,18 @@ class CfgVehicles
 	{
 		fuelCapacity=40;
 		fuelConsumption=2.0;
-		attachments[]=
+		attachments[]+=
 		{
 			"Shoulder",
 			"Back",
-			"sea_chest",
-			"CanisterGasoline",
+			"SeaChest",
+			"JerryCan",
 			"SparkPlug",
-			"TireRepairKit"
+			"TireRepairKit",
+			"Backpack_1",
+			"FishingRod",
+			"Map",
+			"FirstAidKit"
 		};
 		class SimulationModule
 		{
@@ -509,17 +589,27 @@ class CfgVehicles
 				autoDecrease=1;
 			};
 		}; 
+		class Cargo
+		{
+			itemsCargoSize[]={10,30};
+			allowOwnedCargoManipulation=1;
+			openable=0;
+		};
 		class GUIInventoryAttachmentsProps
 		{
 			class Chassis
 			{
-				attachmentSlots[]=
+				attachmentSlots[]+=
 				{
 					"Shoulder",
 			        "Back",
-					"sea_chest",
-			        "CanisterGasoline",
-					"TireRepairKit"
+					"SeaChest",
+			        "JerryCan",
+					"TireRepairKit",
+					"Backpack_1",
+					"FishingRod",
+					"Map",
+					"FirstAidKit"
 				};
 			};
 		};
@@ -529,13 +619,8 @@ class CfgVehicles
 	};
 	class Offroad_02_Wheel: CarWheel
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Offroad_02_Wheel_1_1",
-			"Offroad_02_Wheel_1_2",
-			"Offroad_02_Wheel_2_1",
-			"Offroad_02_Wheel_2_2",
-			"Offroad_02_Wheel_Spare_1",
 			"Truck_01_Wheel_1_1",
 			"Truck_01_Wheel_2_1",
 			"Truck_01_Wheel_Spare_1",
@@ -551,23 +636,19 @@ class CfgVehicles
 	};
 	class HatchbackWheel: CarWheel
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"NivaWheel_1_1",
-			"NivaWheel_1_2",
-			"NivaWheel_2_1",
-			"NivaWheel_2_2",
+			"Hatchback_02_Wheel_1_1",
+			"Hatchback_02_Wheel_1_2",
+			"Hatchback_02_Wheel_2_1",
+			"Hatchback_02_Wheel_2_2",
+			"Hatchback_02_Wheel_Spare_1",
 			"NivaWheel_Spare_1",
 			"CivSedanWheel_1_1",
 			"CivSedanWheel_1_2",
 			"CivSedanWheel_2_1",
 			"CivSedanWheel_2_2",
 			"CivSedanWheel_Spare_1",
-			"Hatchback_02_Wheel_1_1",
-			"Hatchback_02_Wheel_1_2",
-			"Hatchback_02_Wheel_2_1",
-			"Hatchback_02_Wheel_2_2",
-			"Hatchback_02_Wheel_Spare_1",
 			"Sedan_02_Wheel_1_1",
 			"Sedan_02_Wheel_1_2",
 			"Sedan_02_Wheel_2_1",
@@ -580,18 +661,13 @@ class CfgVehicles
 	};
 	class CivSedanWheel: CarWheel
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
 			"NivaWheel_1_1",
 			"NivaWheel_1_2",
 			"NivaWheel_2_1",
 			"NivaWheel_2_2",
 			"NivaWheel_Spare_1",
-			"CivSedanWheel_1_1",
-			"CivSedanWheel_1_2",
-			"CivSedanWheel_2_1",
-			"CivSedanWheel_2_2",
-			"CivSedanWheel_Spare_1",
 			"Hatchback_02_Wheel_1_1",
 			"Hatchback_02_Wheel_1_2",
 			"Hatchback_02_Wheel_2_1",
@@ -609,7 +685,7 @@ class CfgVehicles
 	};
 	class Hatchback_02_Wheel: CarWheel
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
 			"NivaWheel_1_1",
 			"NivaWheel_1_2",
@@ -621,11 +697,6 @@ class CfgVehicles
 			"CivSedanWheel_2_1",
 			"CivSedanWheel_2_2",
 			"CivSedanWheel_Spare_1",
-			"Hatchback_02_Wheel_1_1",
-			"Hatchback_02_Wheel_1_2",
-			"Hatchback_02_Wheel_2_1",
-			"Hatchback_02_Wheel_2_2",
-			"Hatchback_02_Wheel_Spare_1",
 			"Sedan_02_Wheel_1_1",
 			"Sedan_02_Wheel_1_2",
 			"Sedan_02_Wheel_2_1",
@@ -638,7 +709,7 @@ class CfgVehicles
 	};
 	class Sedan_02_Wheel: CarWheel
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
 			"NivaWheel_1_1",
 			"NivaWheel_1_2",
@@ -654,12 +725,7 @@ class CfgVehicles
 			"Hatchback_02_Wheel_1_2",
 			"Hatchback_02_Wheel_2_1",
 			"Hatchback_02_Wheel_2_2",
-			"Hatchback_02_Wheel_Spare_1",
-			"Sedan_02_Wheel_1_1",
-			"Sedan_02_Wheel_1_2",
-			"Sedan_02_Wheel_2_1",
-			"Sedan_02_Wheel_2_2",
-			"Sedan_02_Wheel_Spare_1"
+			"Hatchback_02_Wheel_Spare_1"
 		};
 		tyreOffroadResistance=1;
 		tyreGrip=0.94999999;
@@ -667,32 +733,24 @@ class CfgVehicles
 	};
 	class Truck_01_Wheel: CarWheel
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
 			"Offroad_02_Wheel_1_1",
 			"Offroad_02_Wheel_1_2",
 			"Offroad_02_Wheel_2_1",
 			"Offroad_02_Wheel_2_2",
-			"Offroad_02_Wheel_Spare_1",
-			"Truck_01_Wheel_1_1",
-			"Truck_01_Wheel_2_1",
-			"Truck_01_Wheel_Spare_1",
-			"Truck_01_Wheel_Spare_2"
+			"Offroad_02_Wheel_Spare_1"
 		};
 	};
 	class Truck_01_WheelDouble: Truck_01_Wheel
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
 			"Offroad_02_Wheel_1_1",
 			"Offroad_02_Wheel_1_2",
 			"Offroad_02_Wheel_2_1",
 			"Offroad_02_Wheel_2_2",
 			"Offroad_02_Wheel_Spare_1",
-			"Truck_01_Wheel_1_2",
-			"Truck_01_Wheel_1_3",
-			"Truck_01_Wheel_2_2",
-			"Truck_01_Wheel_2_3"
 		};
 	};
 };	
