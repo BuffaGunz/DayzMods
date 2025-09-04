@@ -4,6 +4,11 @@ class AirDropSettings
     int DropIntervalMax = 1800000;
 
     bool EnableCustomDropSites = false;
+	
+	bool EnableExpansionMarkers = true;
+	bool EnableZenMarkers = true;
+	bool EnableBasicMapMarkers = true;
+	bool EnableLBMasterMarkers    = true;
 
     bool EnableCustomLootItemsRed = false;
     bool EnableCustomLootItemsBlue = false;
@@ -49,7 +54,6 @@ class AirDropSettings
 
     private static void Load()
     {
-        // 🔁 Renamed folder here:
         string folder = "$profile:Ruckus";
         string path = folder + "/AirDropSettings.json";
 

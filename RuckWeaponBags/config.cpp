@@ -71,10 +71,8 @@ class cfgWeapons
 	class RifleCore;
 	class Rifle_Base: RifleCore
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Shoulder",
-			"Melee",
 			"Backpack_1"
 		};
 		class InventorySlotsOffsets
@@ -89,10 +87,8 @@ class cfgWeapons
 	class Archery_Base;
 	class Crossbow_Base: Archery_Base
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Shoulder",
-			"Melee",
 			"Backpack_1"
 		};
 		class InventorySlotsOffsets
@@ -757,58 +753,51 @@ class CfgVehicles
 	class Clothing;
 	class SlingBag_ColorBase: Clothing
 	{
-		attachments[]=
+		attachments[]-=
 		{
-			"WalkieTalkie",
+			"Backpack_1"
 		};
 	};	
 	class ChildBag_ColorBase: Clothing
 	{
-		attachments[]=
+		attachments[]-=
 		{
-			"Chemlight",
-			"WalkieTalkie"
+			"Backpack_1"
 		};
 	};	
 	class LeatherSack_ColorBase: Clothing
 	{
-		attachments[]=
+		attachments[]-=
 		{
-			"Chemlight",
-			"WalkieTalkie"
+			"Backpack_1"
 		};
 	};	
 	class ArmyPouch_ColorBase: Clothing
 	{
-		attachments[]=
+		attachments[]-=
 		{
-			"Chemlight",
-			"WalkieTalkie"
+			"Backpack_1"
 		};
 	};	
 	class DuffelBagSmall_ColorBase: Clothing
 	{
-		attachments[]=
+		attachments[]-=
 		{
-			"Chemlight",
-			"WalkieTalkie"
+			"Backpack_1"
 		};
 	};	
 	class CanvasBag_ColorBase: Clothing
 	{
-		attachments[]=
+		attachments[]-=
 		{
-			"Chemlight",
-			"WalkieTalkie"
+			"Backpack_1"
 		};
 	};	
 	class Inventory_Base;
 	class WoodAxe: Inventory_Base
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Shoulder",
-			"Melee",
 			"Backpack_1"
 		};
 		class InventorySlotsOffsets
@@ -822,10 +811,8 @@ class CfgVehicles
 	};
 	class FirefighterAxe: Inventory_Base
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Shoulder",
-			"Melee",
 			"Backpack_1"
 		};
 		class InventorySlotsOffsets
@@ -839,10 +826,8 @@ class CfgVehicles
 	};
 	class Pitchfork: Inventory_Base
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Shoulder",
-			"Melee",
 			"Backpack_1"
 		};
 		class InventorySlotsOffsets
@@ -856,10 +841,8 @@ class CfgVehicles
 	};	
 	class Pickaxe: Inventory_Base
 	{		
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Shoulder",
-			"Melee",
 			"Backpack_1"
 		};
 		class InventorySlotsOffsets
@@ -873,10 +856,8 @@ class CfgVehicles
 	};	
 	class Sword: Inventory_Base
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Shoulder",
-			"Melee",
 			"Backpack_1"
 		};
 		class InventorySlotsOffsets
@@ -890,10 +871,8 @@ class CfgVehicles
 	};	
 	class BaseballBat: Inventory_Base
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Shoulder",
-			"Melee",
 			"Backpack_1"
 		};
 		class InventorySlotsOffsets
@@ -907,10 +886,8 @@ class CfgVehicles
 	};	
 	class NailedBaseballBat: Inventory_Base
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Shoulder",
-			"Melee",
 			"Backpack_1"
 		};
 		class InventorySlotsOffsets
@@ -924,10 +901,8 @@ class CfgVehicles
 	};	
 	class BarbedBaseballBat: Inventory_Base
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Shoulder",
-			"Melee",
 			"Backpack_1"
 		};
 		class InventorySlotsOffsets
@@ -941,10 +916,8 @@ class CfgVehicles
 	};	
 	class XmasBaseballBat: Inventory_Base
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Shoulder",
-			"Melee",
 			"Backpack_1"
 		};
 		class InventorySlotsOffsets
@@ -958,10 +931,8 @@ class CfgVehicles
 	};	
 	class TelescopicBaton: Inventory_Base
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Shoulder",
-			"Melee",
 			"Backpack_1"
 		};
 		class InventorySlotsOffsets
@@ -975,10 +946,8 @@ class CfgVehicles
 	};	
 	class HockeyStick: Inventory_Base
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Shoulder",
-			"Melee",
 			"Backpack_1"
 		};
 		class InventorySlotsOffsets
@@ -992,10 +961,8 @@ class CfgVehicles
 	};	
 	class NewHockeyStick: Inventory_Base
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Shoulder",
-			"Melee",
 			"Backpack_1"
 		};
 		class InventorySlotsOffsets
@@ -1009,10 +976,8 @@ class CfgVehicles
 	};	
 	class PoliceBaton: Inventory_Base
 	{
-		inventorySlot[]=
+		inventorySlot[]+=
 		{
-			"Shoulder",
-			"Melee",
 			"Backpack_1"
 		};
 		class InventorySlotsOffsets

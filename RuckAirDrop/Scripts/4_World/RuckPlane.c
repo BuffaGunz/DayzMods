@@ -20,10 +20,6 @@ class RuckPlane extends CrashBase
 	protected string m_RuckPlane_EngineSoundSet;
 	protected EffectSound m_RuckPlane_EngineSound;
 
-	static ref map<EntityAI, int> m_ContainerTimers = new map<EntityAI, int>();
-	static const int MAX_CONTAINER_LIFETIME = 3600000; // 1 hour
-	static const int CONTAINER_CHECK_INTERVAL = 300000;  // 30 mintues
-	
 	static string m_LastDirection = "";
 
 	static void SpawnSite()
@@ -101,7 +97,7 @@ class RuckPlane extends CrashBase
 		vector direction = m_DropLocation - GetPosition();
 		direction.Normalize();
 
-		m_Angle = Math.Atan2(direction[2], direction[0]); // ← FIXED HERE
+		m_Angle = Math.Atan2(direction[2], direction[0]);
 	}
 
     void RuckPlane()
@@ -181,14 +177,13 @@ class RuckPlane extends CrashBase
 			case "AirdropContainerOrange": m_KeyType = "ShippingContainerKeys_Orange"; break;
 		}
 
-		m_DropLocation = GetPosition(); // Store plane's exact position for drift reference
+		m_DropLocation = GetPosition(); 
 		m_Container = EntityAI.Cast(GetGame().CreateObject(selectedType, m_DropLocation, false, false));
 
 		if (!m_Container)
 			return;
 
 		m_Container.SetOrientation(GetOrientation()); 
-
 		
 		m_Container.SetAffectPathgraph(true, true);
 		GetGame().UpdatePathgraphRegionByObject(m_Container);
@@ -242,13 +237,29 @@ class RuckPlane extends CrashBase
 		else if (!m_ContainerLanded)
 		{
 			m_ContainerLanded = true;
+			
+			#ifdef SERVER
+				string ctype = m_Container.GetType();  
+
+				#ifdef ZENMAP
+					RuckZenMarkerService.ServerCreateMarkerForContainer(ctype, m_Container);
+				#endif
+				#ifdef BASICMAP
+					RuckBasicMarkerService.ServerCreateMarkerForContainer(ctype, m_Container);
+				#endif
+				#ifdef LBmaster_Groups
+					RuckLBMasterMarkerService.ServerCreateMarkerForContainer(ctype, m_Container);
+				#endif
+				#ifdef EXPANSIONMOD
+					RuckExpansionMarkerService.ServerCreateMarkerForContainer(ctype, m_Container);
+				#endif
+			#endif
 
 			pos[1] = groundY;
 			pos[0] = m_DropLocation[0] + m_DriftOffset[0];
 			pos[2] = m_DropLocation[2] + m_DriftOffset[2];
 			m_Container.SetPosition(pos);
 
-			// ✅ Rotate container 90 degrees BEFORE terrain alignment
 			vector ori = m_Container.GetOrientation();
 			ori[0] = Math.WrapFloat(ori[0] + 90.0, 0.0, 360.0);
 			m_Container.SetOrientation(ori);
@@ -278,12 +289,9 @@ class RuckPlane extends CrashBase
 			m_Container.SetAffectPathgraph(true, true);
 			GetGame().UpdatePathgraphRegionByObject(m_Container);
 			m_Container.SetSynchDirty();
-
+			
 			FillContainerWithRandomLoot(m_Container);
 			SpawnZombiesAtDrop(m_Container, m_KeyType);
-
-			m_ContainerTimers.Set(m_Container, 0);
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckContainerLifetime, CONTAINER_CHECK_INTERVAL, true, m_Container);
 
 			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(this.UpdateDropLoop);
 		}
@@ -374,53 +382,6 @@ class RuckPlane extends CrashBase
 	{
 		float size = GetGame().GetWorld().GetWorldSize();
 		return pos[0] >= -10 && pos[0] <= size + 10 && pos[2] >= -10 && pos[2] <= size + 10;
-	}
-
-	static void CheckContainerLifetime(EntityAI obj)
-	{
-		if (!obj || !m_ContainerTimers.Contains(obj))
-			return;
-
-		vector pos = obj.GetPosition();
-		array<Man> players = {};
-		GetGame().GetPlayers(players);
-
-		bool nearby = false;
-		foreach (Man p : players)
-		{
-			if (vector.Distance(pos, p.GetPosition()) <= 50)
-			{
-				nearby = true;
-				break;
-			}
-		}
-
-		if (nearby)
-		{
-			m_ContainerTimers.Set(obj, 0);
-		}
-		else
-		{
-			int elapsed = m_ContainerTimers.Get(obj) + CONTAINER_CHECK_INTERVAL;
-			if (elapsed >= MAX_CONTAINER_LIFETIME)
-			{
-				m_ContainerTimers.Remove(obj);
-				if (obj.IsInherited(ItemBase) && !obj.GetHierarchyParent())
-				{
-					GetGame().ObjectDelete(obj);
-					PrintFormat("[Cleanup] Deleted loose loot: %1", obj);
-				}
-				else if (obj.GetType().Contains("Land_ContainerLocked") || obj.GetType().Contains("Container"))
-				{
-					GetGame().ObjectDelete(obj);
-					PrintFormat("[Cleanup] Deleted container: %1", obj);
-				}
-			}
-			else
-			{
-				m_ContainerTimers.Set(obj, elapsed);
-			}
-		}
 	}
 
 	static void SpawnZombiesAtDrop(EntityAI container, string keyName)
@@ -525,7 +486,6 @@ class RuckPlane extends CrashBase
 		string containerType = container.GetType();
 		string crateType = "";
 
-		// weaponMap container type to crate type
 		switch (containerType)
 		{
 			case "AirdropContainerRed":    crateType = "RuckStorageRed"; break;
@@ -669,7 +629,7 @@ class RuckPlane extends CrashBase
 		int count = arr.Count();
 		for (int i = 0; i < count; i++)
 		{
-			int j = Math.RandomInt(i, count); // pick a random index from i to end
+			int j = Math.RandomInt(i, count); 
 			if (i != j)
 			{
 				string temp = arr[i];
@@ -947,10 +907,9 @@ class RuckPlane extends CrashBase
 	static void SendDropNotification(vector pos)
 	{
 		if (!AirDropSettings.Get().EnableDropNotification)
-			return; 
+			return;
 
-		string msg = string.Format("Supply drop inbound for coordinates x(%1) z(%2)",
-			pos[0].ToString(), pos[2].ToString());
+		string msg = string.Format("Supply drop inbound for coordinates x(%1) z(%2)",pos[0].ToString(), pos[2].ToString());
 
 		array<Man> players = new array<Man>;
 		GetGame().GetPlayers(players);
@@ -961,13 +920,15 @@ class RuckPlane extends CrashBase
 			if (pb && pb.IsAlive())
 			{
 				#ifdef EXPANSIONMOD
+				PlayerIdentity id = pb.GetIdentity(); 
 				// Send directly to the player to avoid multiple notifications
-				ExpansionNotification("Supply Drop", msg, "set:dayz_inventory image:explosive", COLOR_EXPANSION_NOTIFICATION_MISSION, 15).Create(pb);
+				ExpansionNotification("Supply Drop", msg, "set:dayz_inventory image:explosive", COLOR_EXPANSION_NOTIFICATION_MISSION, 15.0).Create(id);
 				#else
-				pb.MessageStatus(msg); 
+				pb.MessageStatus(msg);
 				NotificationSystem.SendNotificationToPlayerExtended(pb, 15, "Supply Drop", msg, "set:dayz_inventory image:explosive");
 				#endif
-			}	
+			}
 		}
 	}
+
 };
