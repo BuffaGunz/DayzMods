@@ -4,7 +4,11 @@ class CfgPatches
     {
         units[] = {""};
         weapons[] = {};
-        requiredAddons[] = {"DZ_Data", "DZ_Sounds_Effects"};
+        requiredAddons[] =
+		{
+			"DZ_Data",
+			"DZ_Sounds_Effects"
+		};
     };
 };
 
@@ -21,24 +25,54 @@ class CfgMods
         hidePicture = 1;
         version = "1.0";
         type = "mod";
-        dependencies[] = {"Game", "World", "Mission"};
-
+        dependencies[] = 
+		{
+			"Game",
+			"World",
+			"Mission"
+		};
         class defs
         {
+			class engineScriptModule
+			{
+				files[]=
+				{
+					"RuckAirDrop/Scripts/Common"
+				};
+			};
+			class gameLibScriptModule
+			{
+				files[]=
+				{
+					"RuckAirDrop/Scripts/Common"
+				};
+			};
             class gameScriptModule
             {
                 value = "";
-                files[] = {"RuckAirDrop/Scripts/3_Game"};
+                files[] = 
+				{
+					"RuckAirDrop/Scripts/Common",
+					"RuckAirDrop/Scripts/3_Game"
+				};
             };
             class worldScriptModule
             {
                 value = "";
-                files[] = {"RuckAirDrop/Scripts/4_World"};
+                files[] = 
+				{
+					"RuckAirDrop/Scripts/Common",
+					"RuckAirDrop/Scripts/4_World"
+				};
             };
 			class missionScriptModule
             {
                 value = "";
-                files[] = {"RuckAirDrop/Scripts/5_Mission"};
+                files[] = 
+				{
+					"RuckAirDrop/Scripts/Common",
+					"RuckAirDrop/Scripts/5_Mission"
+				};
             };
         };
     };

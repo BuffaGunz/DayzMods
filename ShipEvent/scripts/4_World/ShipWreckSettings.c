@@ -7,7 +7,6 @@ class ShipWreckSettings
     bool EnableCustomLootItems = false;
 	
 	bool EnableExpansionMarkers = true;
-	bool EnableZenMarkers = true;
 	bool EnableBasicMapMarkers = true;
 	bool EnableLBMasterMarkers = true;
 

@@ -64,16 +64,13 @@ class ShipWreck extends BuildingSuper
 	void Ruck_CreateAllMarkersAfterLoad()
 	{
 		#ifdef SERVER
-			#ifdef ZENMAP
-				RuckShipZenMarkerService.ServerRecreateAfterLoad(this);
-			#endif
 			#ifdef BASICMAP
 				RuckShipBasicMarkerService.ServerRecreateAfterLoad(this);
 			#endif
 			#ifdef LBmaster_Groups
 				RuckShipLBMasterMarkerService.ServerRecreateAfterLoad(this);
 			#endif
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODNAVIGATION
 				RuckShipExpansionMarkerService.ServerRecreateAfterLoad(this);
 			#endif
 		#endif
@@ -110,16 +107,13 @@ class ShipWreck extends BuildingSuper
 			m_ParticleEfx.Stop();
 
 		#ifdef SERVER
-			#ifdef ZENMAP
-				RuckShipZenMarkerService.ServerRemoveMarkerFor(this);
-			#endif
 			#ifdef BASICMAP
 				RuckShipBasicMarkerService.ServerRemoveMarkerFor(this);
 			#endif
 			#ifdef LBmaster_Groups
 				RuckShipLBMasterMarkerService.ServerRemoveMarkerFor(this);
 			#endif
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODNAVIGATION
 				RuckShipExpansionMarkerService.ServerRemoveMarkerFor(this);
 			#endif
 		#endif
@@ -315,16 +309,13 @@ class ShipWreck extends BuildingSuper
 		#ifdef SERVER
 			string wtype = wreck.GetType();
 
-			#ifdef ZENMAP
-				RuckShipZenMarkerService.ServerCreateMarkerForWreck(wtype, wreck);
-			#endif
 			#ifdef BASICMAP
 				RuckShipBasicMarkerService.ServerCreateMarkerForWreck(wtype, wreck);
 			#endif
 			#ifdef LBmaster_Groups
 				RuckShipLBMasterMarkerService.ServerCreateMarkerForWreck(wtype, wreck);
 			#endif
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODNAVIGATION
 				RuckShipExpansionMarkerService.ServerCreateMarkerForWreck(wtype, wreck);
 			#endif
 		#endif

@@ -7,9 +7,13 @@ class PlaneCrashSettings
     bool EnableCustomLootItems = false;
 	
 	bool EnableExpansionMarkers = true;
-	bool EnableZenMarkers = true;
 	bool EnableBasicMapMarkers = true;
 	bool EnableLBMasterMarkers = true;
+	
+	bool EnableContainerBlue   = true;
+	bool EnableContainerRed    = true;
+	bool EnableContainerYellow = true;
+	bool EnableContainerOrange = true;
 
     ref array<vector> CustomCrashSites;
     ref array<string> CustomLootItems;

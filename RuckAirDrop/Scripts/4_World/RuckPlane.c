@@ -163,19 +163,46 @@ class RuckPlane extends CrashBase
 		}
 
 	}
+	
+	static string PickEnabledContainerType()
+	{
+		auto settings = AirDropSettings.Get();
+
+		ref array<string> candidates = new array<string>();
+
+		if (settings && settings.EnableContainerBlue)   candidates.Insert("AirdropContainerBlue");
+		if (settings && settings.EnableContainerRed)    candidates.Insert("AirdropContainerRed");
+		if (settings && settings.EnableContainerYellow) candidates.Insert("AirdropContainerYellow");
+		if (settings && settings.EnableContainerOrange) candidates.Insert("AirdropContainerOrange");
+
+		if (candidates.Count() == 0)
+		{
+			candidates.Insert("AirdropContainerBlue");
+			candidates.Insert("AirdropContainerRed");
+			candidates.Insert("AirdropContainerYellow");
+			candidates.Insert("AirdropContainerOrange");
+		}
+
+		return candidates.GetRandomElement();
+	}
+
+	static string KeyTypeFor(string containerType)
+	{
+		switch (containerType)
+		{
+			case "AirdropContainerBlue":   return "ShippingContainerKeys_Blue";
+			case "AirdropContainerRed":    return "ShippingContainerKeys_Red";
+			case "AirdropContainerYellow": return "ShippingContainerKeys_Yellow";
+			case "AirdropContainerOrange": return "ShippingContainerKeys_Orange";
+		}
+		return "";
+	}
+
 
 	void DropContainer()
 	{
-		ref array<string> containerTypes = { "AirdropContainerBlue", "AirdropContainerRed", "AirdropContainerYellow", "AirdropContainerOrange" };
-		string selectedType = containerTypes.GetRandomElement();
-
-		switch (selectedType)
-		{
-			case "AirdropContainerBlue":   m_KeyType = "ShippingContainerKeys_Blue"; break;
-			case "AirdropContainerRed":    m_KeyType = "ShippingContainerKeys_Red"; break;
-			case "AirdropContainerYellow": m_KeyType = "ShippingContainerKeys_Yellow"; break;
-			case "AirdropContainerOrange": m_KeyType = "ShippingContainerKeys_Orange"; break;
-		}
+		string selectedType = PickEnabledContainerType();
+		m_KeyType = KeyTypeFor(selectedType);
 
 		m_DropLocation = GetPosition(); 
 		m_Container = EntityAI.Cast(GetGame().CreateObject(selectedType, m_DropLocation, false, false));
@@ -184,7 +211,6 @@ class RuckPlane extends CrashBase
 			return;
 
 		m_Container.SetOrientation(GetOrientation()); 
-		
 		m_Container.SetAffectPathgraph(true, true);
 		GetGame().UpdatePathgraphRegionByObject(m_Container);
 
@@ -241,16 +267,13 @@ class RuckPlane extends CrashBase
 			#ifdef SERVER
 				string ctype = m_Container.GetType();  
 
-				#ifdef ZENMAP
-					RuckZenMarkerService.ServerCreateMarkerForContainer(ctype, m_Container);
-				#endif
 				#ifdef BASICMAP
 					RuckBasicMarkerService.ServerCreateMarkerForContainer(ctype, m_Container);
 				#endif
 				#ifdef LBmaster_Groups
 					RuckLBMasterMarkerService.ServerCreateMarkerForContainer(ctype, m_Container);
 				#endif
-				#ifdef EXPANSIONMOD
+				#ifdef EXPANSIONMODNAVIGATION
 					RuckExpansionMarkerService.ServerCreateMarkerForContainer(ctype, m_Container);
 				#endif
 			#endif

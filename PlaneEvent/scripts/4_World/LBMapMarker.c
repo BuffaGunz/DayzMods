@@ -14,7 +14,7 @@ class RuckPlaneLBMasterMarkerService
 		vector pos   = obj.GetPosition();
 		string label = "Plane Crash";
 		int color    = ColorForContainer(wreckType);
-		string icon  = "PlaneEvent\\Icon\\marker.paa";
+		string icon  = "PlaneEvent\\Icon\\PlaneCrash.paa";
 
 		bool toSurface  = true;
 		bool display3D  = true;

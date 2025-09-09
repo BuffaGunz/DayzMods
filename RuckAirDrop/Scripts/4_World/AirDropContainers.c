@@ -80,16 +80,13 @@ class AirdropContainerRed extends Land_ContainerLocked_Red_DE
 		}
 
 		#ifdef SERVER
-			#ifdef ZENMAP
-				RuckZenMarkerService.ServerRemoveMarkerFor(this);
-			#endif
 			#ifdef BASICMAP
 				RuckBasicMarkerService.ServerRemoveMarkerFor(this);
 			#endif
 			#ifdef LBmaster_Groups
 				RuckLBMasterMarkerService.ServerRemoveMarkerFor(this);
 			#endif
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRemoveMarkerFor(this);
 			#endif
 		#endif
@@ -130,16 +127,13 @@ class AirdropContainerRed extends Land_ContainerLocked_Red_DE
 	void Ruck_CreateAllMarkersAfterLoad()
 	{
 		#ifdef SERVER
-			#ifdef ZENMAP
-				RuckZenMarkerService.ServerRecreateAfterLoad(this);
-			#endif
 			#ifdef BASICMAP
 				RuckBasicMarkerService.ServerRecreateAfterLoad(this);
 			#endif
 			#ifdef LBmaster_Groups
 				RuckLBMasterMarkerService.ServerRecreateAfterLoad(this);
 			#endif
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRecreateAfterLoad(this);
 			#endif
 		#endif
@@ -322,16 +316,13 @@ class AirdropContainerBlue extends Land_ContainerLocked_Blue_DE
 		}
 
 		#ifdef SERVER
-			#ifdef ZENMAP
-				RuckZenMarkerService.ServerRemoveMarkerFor(this);
-			#endif
 			#ifdef BASICMAP
 				RuckBasicMarkerService.ServerRemoveMarkerFor(this);
 			#endif
 			#ifdef LBmaster_Groups
 				RuckLBMasterMarkerService.ServerRemoveMarkerFor(this);
 			#endif
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRemoveMarkerFor(this);
 			#endif
 		#endif
@@ -372,16 +363,13 @@ class AirdropContainerBlue extends Land_ContainerLocked_Blue_DE
 	void Ruck_CreateAllMarkersAfterLoad()
 	{
 		#ifdef SERVER
-			#ifdef ZENMAP
-				RuckZenMarkerService.ServerRecreateAfterLoad(this);
-			#endif
 			#ifdef BASICMAP
 				RuckBasicMarkerService.ServerRecreateAfterLoad(this);
 			#endif
 			#ifdef LBmaster_Groups
 				RuckLBMasterMarkerService.ServerRecreateAfterLoad(this);
 			#endif
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRecreateAfterLoad(this);
 			#endif
 		#endif
@@ -561,16 +549,13 @@ class AirdropContainerYellow extends Land_ContainerLocked_Yellow_DE
 		}
 
 		#ifdef SERVER
-			#ifdef ZENMAP
-				RuckZenMarkerService.ServerRemoveMarkerFor(this);
-			#endif
 			#ifdef BASICMAP
 				RuckBasicMarkerService.ServerRemoveMarkerFor(this);
 			#endif
 			#ifdef LBmaster_Groups
 				RuckLBMasterMarkerService.ServerRemoveMarkerFor(this);
 			#endif
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRemoveMarkerFor(this);
 			#endif
 		#endif
@@ -611,16 +596,13 @@ class AirdropContainerYellow extends Land_ContainerLocked_Yellow_DE
 	void Ruck_CreateAllMarkersAfterLoad()
 	{
 		#ifdef SERVER
-			#ifdef ZENMAP
-				RuckZenMarkerService.ServerRecreateAfterLoad(this);
-			#endif
 			#ifdef BASICMAP
 				RuckBasicMarkerService.ServerRecreateAfterLoad(this);
 			#endif
 			#ifdef LBmaster_Groups
 				RuckLBMasterMarkerService.ServerRecreateAfterLoad(this);
 			#endif
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRecreateAfterLoad(this);
 			#endif
 		#endif
@@ -804,16 +786,13 @@ class AirdropContainerOrange extends Land_ContainerLocked_Orange_DE
 		}
 
 		#ifdef SERVER
-			#ifdef ZENMAP
-				RuckZenMarkerService.ServerRemoveMarkerFor(this);
-			#endif
 			#ifdef BASICMAP
 				RuckBasicMarkerService.ServerRemoveMarkerFor(this);
 			#endif
 			#ifdef LBmaster_Groups
 				RuckLBMasterMarkerService.ServerRemoveMarkerFor(this);
 			#endif
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRemoveMarkerFor(this);
 			#endif
 		#endif
@@ -854,16 +833,13 @@ class AirdropContainerOrange extends Land_ContainerLocked_Orange_DE
 	void Ruck_CreateAllMarkersAfterLoad()
 	{
 		#ifdef SERVER
-			#ifdef ZENMAP
-				RuckZenMarkerService.ServerRecreateAfterLoad(this);
-			#endif
 			#ifdef BASICMAP
 				RuckBasicMarkerService.ServerRecreateAfterLoad(this);
 			#endif
 			#ifdef LBmaster_Groups
 				RuckLBMasterMarkerService.ServerRecreateAfterLoad(this);
 			#endif
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRecreateAfterLoad(this);
 			#endif
 		#endif

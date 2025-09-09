@@ -79,16 +79,13 @@ class PlaneCrash extends CrashBase
 	void Ruck_CreateAllMarkersAfterLoad()
 	{
 		#ifdef SERVER
-			#ifdef ZENMAP
-				RuckPlaneZenMarkerService.ServerRecreateAfterLoad(this);
-			#endif
 			#ifdef BASICMAP
 				RuckPlaneBasicMarkerService.ServerRecreateAfterLoad(this);
 			#endif
 			#ifdef LBmaster_Groups
 				RuckPlaneLBMasterMarkerService.ServerRecreateAfterLoad(this);
 			#endif
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODNAVIGATION
 				RuckPlaneExpansionMarkerService.ServerRecreateAfterLoad(this);
 			#endif
 		#endif
@@ -108,16 +105,13 @@ class PlaneCrash extends CrashBase
 			m_ParticleEfx.Stop();
 
 		#ifdef SERVER
-			#ifdef ZENMAP
-				RuckPlaneZenMarkerService.ServerRemoveMarkerFor(this);
-			#endif
 			#ifdef BASICMAP
 				RuckPlaneBasicMarkerService.ServerRemoveMarkerFor(this);
 			#endif
 			#ifdef LBmaster_Groups
 				RuckPlaneLBMasterMarkerService.ServerRemoveMarkerFor(this);
 			#endif
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODNAVIGATION
 				RuckPlaneExpansionMarkerService.ServerRemoveMarkerFor(this);
 			#endif
 		#endif
@@ -228,6 +222,39 @@ class PlaneCrash extends CrashBase
 		Print("[PlaneCrash] ❌ Failed to find valid Crash site after max attempts.");
 		return vector.Zero;
 	}
+	
+	static string PickEnabledCrashContainerType()
+	{
+		auto settings = PlaneCrashSettings.Get();
+
+		ref array<string> candidates = new array<string>();
+		if (settings && settings.EnableContainerBlue)   candidates.Insert("WreckContainerBlue");
+		if (settings && settings.EnableContainerRed)    candidates.Insert("WreckContainerRed");
+		if (settings && settings.EnableContainerYellow) candidates.Insert("WreckContainerYellow");
+		if (settings && settings.EnableContainerOrange) candidates.Insert("WreckContainerOrange");
+
+		if (candidates.Count() == 0)
+		{
+			candidates.Insert("WreckContainerBlue");
+			candidates.Insert("WreckContainerRed");
+			candidates.Insert("WreckContainerYellow");
+			candidates.Insert("WreckContainerOrange");
+		}
+
+		return candidates.GetRandomElement();
+	}
+
+	static string KeyNameForCrashContainer(string containerType)
+	{
+		switch (containerType)
+		{
+			case "WreckContainerBlue":   return "ShippingContainerKeys_Blue";
+			case "WreckContainerRed":    return "ShippingContainerKeys_Red";
+			case "WreckContainerYellow": return "ShippingContainerKeys_Yellow";
+			case "WreckContainerOrange": return "ShippingContainerKeys_Orange";
+		}
+		return "";
+	}
 
 	static void SpawnSite()
 	{
@@ -281,22 +308,8 @@ class PlaneCrash extends CrashBase
 		
 		Print("[PlaneCrash] Wreck placed and navmesh updated.");
 
-		ref array<string> containerTypes = {
-			"WreckContainerBlue",
-			"WreckContainerRed",
-			"WreckContainerYellow",
-			"WreckContainerOrange"
-		};
-		string selectedType = containerTypes.GetRandomElement();
-
-		string keyName = "";
-		switch (selectedType)
-		{
-			case "WreckContainerBlue":   keyName = "ShippingContainerKeys_Blue"; break;
-			case "WreckContainerRed":    keyName = "ShippingContainerKeys_Red"; break;
-			case "WreckContainerYellow": keyName = "ShippingContainerKeys_Yellow"; break;
-			case "WreckContainerOrange": keyName = "ShippingContainerKeys_Orange"; break;
-		}
+		string selectedType = PickEnabledCrashContainerType();
+		string keyName = KeyNameForCrashContainer(selectedType);
 
 		vector dir = wreck.GetDirection();
 		vector cargoPos = wreck.GetPosition() + (dir * 18.5);
@@ -344,16 +357,13 @@ class PlaneCrash extends CrashBase
 		#ifdef SERVER
 			string wtype = wreck.GetType();
 
-			#ifdef ZENMAP
-				RuckPlaneZenMarkerService.ServerCreateMarkerForWreck(wtype, wreck);
-			#endif
 			#ifdef BASICMAP
 				RuckPlaneBasicMarkerService.ServerCreateMarkerForWreck(wtype, wreck);
 			#endif
 			#ifdef LBmaster_Groups
 				RuckPlaneLBMasterMarkerService.ServerCreateMarkerForWreck(wtype, wreck);
 			#endif
-			#ifdef EXPANSIONMOD
+			#ifdef EXPANSIONMODNAVIGATION
 				RuckPlaneExpansionMarkerService.ServerCreateMarkerForWreck(wtype, wreck);
 			#endif
 		#endif

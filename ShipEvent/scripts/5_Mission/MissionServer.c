@@ -1,5 +1,14 @@
 modded class MissionServer
 {
+	#ifdef BASICMAP
+	override void OnClientReadyEvent(PlayerIdentity identity, PlayerBase player)
+    {
+        super.OnClientReadyEvent(identity, player);
+
+        RuckShipBasicMarkerService.PushGroupTo(identity);
+    }
+	#endif
+	
    override void OnInit()
 	{
 		super.OnInit();

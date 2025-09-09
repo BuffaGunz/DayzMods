@@ -4,7 +4,11 @@ class CfgPatches
     {
         units[] = {};
         weapons[] = {};
-        requiredAddons[] = {"DZ_Data"};
+        requiredAddons[] = 
+		{
+			"DZ_Data",
+			"DZ_Sounds_Effects"
+		};
     };
 };
 
@@ -21,24 +25,51 @@ class CfgMods
         hidePicture = 1;
         version = "1.0";
         type = "mod";
-        dependencies[] = {"Game", "World", "Mission"};
-
+        dependencies[] = 
+		{
+			"Game",
+			"World",
+			"Mission"
+		};
         class defs
         {
+			class engineScriptModule
+			{
+				files[]=
+				{
+					"PlaneEvent/scripts/Common"
+				};
+			};
+			class gameLibScriptModule
+			{
+				files[]=
+				{
+					"PlaneEvent/scripts/Common"
+				};
+			};
             class gameScriptModule
             {
-                value = "";
-                files[] = {"PlaneEvent/scripts/3_Game"};
+                files[] = 
+				{
+					"PlaneEvent/scripts/Common",
+					"PlaneEvent/scripts/3_Game"
+				};
             };
             class worldScriptModule
             {
-                value = "";
-                files[] = {"PlaneEvent/scripts/4_World"};
+                files[] = 
+				{
+					"PlaneEvent/scripts/Common",
+					"PlaneEvent/scripts/4_World"
+				};
             };
 			class missionScriptModule
             {
-                value = "";
-                files[] = {"PlaneEvent/scripts/5_Mission"};
+                files[] = 
+				{
+					"PlaneEvent/scripts/Common",
+					"PlaneEvent/scripts/5_Mission"
+				};
             };
         };
     };

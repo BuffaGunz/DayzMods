@@ -15,7 +15,7 @@ class RuckShipLBMasterMarkerService
 		vector pos   = obj.GetPosition();
 		string label = "Ship Wreck";
 		int color    = ColorForContainer(wreckType);
-		string icon  = "LBmaster_Groups\\data\\icons\\marker.paa";
+		string icon  = "ShipEvent\\Data\\ShipWreck.paa";
 
 		bool toSurface  = true;
 		bool display3D  = true;

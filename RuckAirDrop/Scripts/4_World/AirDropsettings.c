@@ -6,9 +6,13 @@ class AirDropSettings
     bool EnableCustomDropSites = false;
 	
 	bool EnableExpansionMarkers = true;
-	bool EnableZenMarkers = true;
 	bool EnableBasicMapMarkers = true;
 	bool EnableLBMasterMarkers    = true;
+	
+	bool EnableContainerBlue   = true;
+    bool EnableContainerRed    = true;
+    bool EnableContainerYellow = true;
+    bool EnableContainerOrange = true;
 
     bool EnableCustomLootItemsRed = false;
     bool EnableCustomLootItemsBlue = false;

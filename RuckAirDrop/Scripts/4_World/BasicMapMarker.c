@@ -1,98 +1,111 @@
 #ifdef BASICMAP
 class RuckBasicMarkerService
 {
-	protected static ref map<string, ref BasicMapMarker> s_MarkersByUID;
-	protected static const string GROUP_NAME = "SupplyDrops"; 
+    protected static ref map<string, ref BasicMapMarker> s_MarkersByUID;
+    protected static const string GROUP_NAME = "RuckAirDrop";
+	
+	static void PushGroupTo(PlayerIdentity toPlayer)
+    {
+        if (!GetGame().IsServer() || !toPlayer) return;
 
-	static void ServerCreateMarkerForContainer(string containerType, EntityAI obj)
-	{
-		if (!GetGame().IsServer() || !obj) return;
-		if (!AirDropSettings.Get().EnableBasicMapMarkers) return;
+        array<autoptr BasicMapMarker> markersOut = new array<autoptr BasicMapMarker>;
+        if (s_MarkersByUID) {
+            for (int i = 0; i < s_MarkersByUID.Count(); i++) {
+                BasicMapMarker m = s_MarkersByUID.GetElement(i);
+                if (m) markersOut.Insert(m);
+            }
+        }
+        BasicMap().SetMarkersRemote(GROUP_NAME, markersOut, toPlayer);
+    }
 
-		string uid = UidFor(obj);
+    static void ServerCreateMarkerForContainer(string containerType, EntityAI obj)
+    {
+        if (!GetGame().IsServer() || !obj) return;
+        if (!AirDropSettings.Get().EnableBasicMapMarkers) return;
 
-		int argb = ColorForContainer(containerType);
-		int A; int R; int G; int B;
-		ARGBToRGBAComponents(argb, A, R, G, B);
-		autoptr array<int> rgb = new array<int>;
-		rgb.Insert(R); rgb.Insert(G); rgb.Insert(B);
+        string uid = UidFor(obj);
 
-		string label = "Supply Drop";
-		vector pos   = obj.GetPosition();
-		string icon  = "BasicMap\\gui\\images\\marker.paa"; 
-		bool   onHUD = true;
+        int A, R, G, B;
+        int argb = ColorForContainer(containerType);
+        ARGBToRGBAComponents(argb, A, R, G, B);
 
-		BasicMapMarker mk = new BasicMapMarker(label, pos, icon, rgb, A, onHUD);
-		mk.SetGroup(uid);       
-		mk.SetCanEdit(false);
-		mk.SetHideOnPanel(false);
-		mk.SetHideOnMap(false);
+        autoptr array<int> rgb = new array<int>;
+        rgb.Insert(R); rgb.Insert(G); rgb.Insert(B);
 
-		if (!s_MarkersByUID) s_MarkersByUID = new map<string, ref BasicMapMarker>();
-		s_MarkersByUID.Set(uid, mk);
+        string label = "Supply Drop";
+        vector pos   = obj.GetPosition();
+        string icon  = "RuckAirDrop\\Data\\SupplyDrop.paa";
+        bool   onHUD = true;
 
-		PushGroupToClients();
-	}
+        BasicMapMarker mk = new BasicMapMarker(label, pos, icon, rgb, A, onHUD);
+        mk.SetGroup(GROUP_NAME);
+        mk.SetCanEdit(false);
+        mk.SetHideOnPanel(false);
+        mk.SetHideOnMap(false);
 
-	static void ServerRemoveMarkerFor(EntityAI obj)
-	{
-		if (!GetGame().IsServer() || !obj) return;
-		if (!s_MarkersByUID) return;
+        if (!s_MarkersByUID) s_MarkersByUID = new map<string, ref BasicMapMarker>();
+        s_MarkersByUID.Set(uid, mk);
 
-		string uid = UidFor(obj);
-		if (s_MarkersByUID.Contains(uid))
-		{
-			s_MarkersByUID.Remove(uid);
-			PushGroupToClients();
-		}
-	}
+        PushGroupToClients();
+    }
 
-	static void ServerRecreateAfterLoad(EntityAI obj)
-	{
-		if (!GetGame().IsServer() || !obj) return;
-		ServerCreateMarkerForContainer(obj.GetType(), obj);
-	}
+    static void ServerRemoveMarkerFor(EntityAI obj)
+    {
+        if (!GetGame().IsServer() || !obj) return;
+        if (!s_MarkersByUID) return;
 
-	protected static void PushGroupToClients()
-	{
-		array<ref BasicMapMarker> markers = new array<ref BasicMapMarker>;
-		if (s_MarkersByUID)
-		{
-			for (int i = 0; i < s_MarkersByUID.Count(); i++)
-			{
-				BasicMapMarker m = s_MarkersByUID.GetElement(i);
-				if (m) markers.Insert(m);
-			}
-		}
-		BasicMap().SetMarkers(GROUP_NAME, markers);
-		BasicMap().UpdateGroupRemote(GROUP_NAME);
-	}
+        string uid = UidFor(obj);
+        if (s_MarkersByUID.Contains(uid)) {
+            s_MarkersByUID.Remove(uid);
+            Print(string.Format("[SupplyDrops] REMOVED uid=%1", uid));
+        } else {
+            Print(string.Format("[SupplyDrops] WARN remove miss uid=%1", uid));
+        }
 
-	protected static int ColorForContainer(string t)
-	{
-		if (t.Contains("Red"))    return ARGB(255, 255,  64,  64);
-		if (t.Contains("Blue"))   return ARGB(255,  64, 128, 255);
-		if (t.Contains("Yellow")) return ARGB(255, 255, 220,  64);
-		if (t.Contains("Orange")) return ARGB(255, 255, 160,  64);
-		return ARGB(255, 255, 255, 255);
-	}
+        PushGroupToClients();
+    }
 
-	protected static void ARGBToRGBAComponents(int argb, out int a, out int r, out int g, out int b)
-	{
-		a = (argb >> 24) & 0xFF;
-		r = (argb >> 16) & 0xFF;
-		g = (argb >> 8)  & 0xFF;
-		b =  argb        & 0xFF;
-	}
+    static void ServerRecreateAfterLoad(EntityAI obj)
+    {
+        if (!GetGame().IsServer() || !obj) return;
+        ServerCreateMarkerForContainer(obj.GetType(), obj);
+    }
 
-	protected static string UidFor(EntityAI obj)
-	{
-		if (!obj) return string.Format("%1-%2", GetGame().GetTime(), Math.RandomInt(1000, 9999));
-		vector p = obj.GetPosition();
-		int px = Math.Round(p[0]);
-		int py = Math.Round(p[1]);
-		int pz = Math.Round(p[2]);
-		return string.Format("%1_%2_%3_%4", obj.GetType(), px, py, pz);
-	}
+    static void PushGroupToClients()
+    {
+        array<autoptr BasicMapMarker> markersOut = new array<autoptr BasicMapMarker>;
+        if (s_MarkersByUID) {
+            for (int i = 0; i < s_MarkersByUID.Count(); i++) {
+                BasicMapMarker m = s_MarkersByUID.GetElement(i);
+                if (m) markersOut.Insert(m);
+            }
+        }
+        BasicMap().SetMarkersRemote(GROUP_NAME, markersOut, NULL);
+    }
+
+    protected static int ColorForContainer(string t)
+    {
+        if (t.Contains("Red"))    return ARGB(255, 255,  64,  64);
+        if (t.Contains("Blue"))   return ARGB(255,  64, 128, 255);
+        if (t.Contains("Yellow")) return ARGB(255, 255, 220,  64);
+        if (t.Contains("Orange")) return ARGB(255, 255, 160,  64);
+        return ARGB(255, 255, 255, 255);
+    }
+
+    protected static void ARGBToRGBAComponents(int argb, out int a, out int r, out int g, out int b)
+    {
+        a = (argb >> 24) & 0xFF;
+        r = (argb >> 16) & 0xFF;
+        g = (argb >> 8)  & 0xFF;
+        b =  argb        & 0xFF;
+    }
+
+    protected static string UidFor(EntityAI obj)
+    {
+        if (!obj) return string.Format("nil-%1", Math.RandomInt(1000, 9999));
+        int low; int high;
+        obj.GetNetworkID(low, high);
+        return string.Format("%1_%2", low, high);
+    }
 }
 #endif

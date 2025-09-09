@@ -14,7 +14,7 @@ class RuckLBMasterMarkerService
 		vector pos   = obj.GetPosition();
 		string label = "Supply Drop";
 		int color    = ColorForContainer(containerType);
-		string icon  = "LBmaster_Groups\\data\\icons\\marker.paa";
+		string icon  = "RuckAirDrop\\Data\\SupplyDrop.paa";
 
 		bool toSurface = true;
 		bool display3D = true;

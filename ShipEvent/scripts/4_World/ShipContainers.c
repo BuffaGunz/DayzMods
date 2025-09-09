@@ -123,8 +123,6 @@ class ShipContainerRed extends Land_ContainerLocked_Red_DE
 		#ifdef SERVER
 		if (!m_InventoryUnlocked)
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ShipWreck.SpawnZombiesOnDeck, 10000, false, GetPosition(), "ShippingContainerKeys_Red");
-			
 			Ruck_StartTimerIfNeeded();
 		}
 		#endif
@@ -317,8 +315,6 @@ class ShipContainerBlue extends Land_ContainerLocked_Blue_DE
 		#ifdef SERVER
 		if (!m_InventoryUnlocked)
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ShipWreck.SpawnZombiesOnDeck, 10000, false, GetPosition(), "ShippingContainerKeys_Blue");
-			
 			Ruck_StartTimerIfNeeded();
 		}
 		#endif
@@ -510,8 +506,6 @@ class ShipContainerYellow extends Land_ContainerLocked_Yellow_DE
 		#ifdef SERVER
 		if (!m_InventoryUnlocked)
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ShipWreck.SpawnZombiesOnDeck, 10000, false, GetPosition(), "ShippingContainerKeys_Yellow");
-			
 			Ruck_StartTimerIfNeeded();
 		}
 		#endif
@@ -703,8 +697,6 @@ class ShipContainerOrange extends Land_ContainerLocked_Orange_DE
 		#ifdef SERVER
 		if (!m_InventoryUnlocked)
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ShipWreck.SpawnZombiesOnDeck, 10000, false, GetPosition(), "ShippingContainerKeys_Orange");
-			
 			Ruck_StartTimerIfNeeded();
 		}
 		#endif

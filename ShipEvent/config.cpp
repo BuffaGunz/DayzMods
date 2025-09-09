@@ -21,24 +21,54 @@ class CfgMods
         hidePicture = 1;
         version = "1.0";
         type = "mod";
-        dependencies[] = {"Game", "World", "Mission"};
-
+        dependencies[] = 
+		{
+			"Game",
+			"World",
+			"Mission"
+		};
         class defs
         {
+			class engineScriptModule
+			{
+				files[]=
+				{
+					"ShipEvent/scripts/Common"
+				};
+			};
+			class gameLibScriptModule
+			{
+				files[]=
+				{
+					"ShipEvent/scripts/Common"
+				};
+			};
             class gameScriptModule
             {
                 value = "";
-                files[] = {"ShipEvent/scripts/3_Game"};
+                files[] = 
+				{
+					"ShipEvent/scripts/Common",
+					"ShipEvent/scripts/3_Game"
+				};
             };
             class worldScriptModule
             {
                 value = "";
-                files[] = {"ShipEvent/scripts/4_World"};
+                files[] = 
+				{
+					"ShipEvent/scripts/Common",
+					"ShipEvent/scripts/4_World"
+				};
             };
 			class missionScriptModule
             {
                 value = "";
-                files[] = {"ShipEvent/scripts/5_Mission"};
+                files[] = 
+				{
+					"ShipEvent/scripts/Common",
+					"ShipEvent/scripts/5_Mission"
+				};
             };
         };
     };
