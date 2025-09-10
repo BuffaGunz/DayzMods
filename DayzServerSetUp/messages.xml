@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<messages>
+    <message>
+        <deadline>240</deadline>
+        <shutdown>1</shutdown>
+        <text>#name is scheduled for restart in #tmin minutes.</text>
+    </message>
+    <message>
+        <onconnect>1</onconnect>
+        <text>You are playing #name</text>
+    </message>
+</messages>
