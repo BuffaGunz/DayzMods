@@ -1,0 +1,459 @@
+FrameWidgetClass ContainerWidget {
+ clipchildren 0
+ color 0.7843 0.7843 0.7843 1
+ position 0 0
+ size 1 1
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ priority 50
+ {
+  WindowWidgetClass WindowWidget {
+   visible 1
+   color 1 0.7843 1 1
+   position 0 0
+   size 1 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style rover_sim_black
+   {
+    PanelWidgetClass Background {
+     visible 1
+     clipchildren 0
+     color 0.2549 0.502 0.0118 0
+     position 0 0
+     size 1 1
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     draggable 0
+     style rover_sim_colorable
+    }
+    PanelWidgetClass BackPanelWidget {
+     visible 1
+     disabled 0
+     color 0.4706 0.4706 0.4706 1
+     position 0 0
+     size 1 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style rover_sim_black
+     {
+      MapWidgetClass Map {
+       visible 1
+       clipchildren 1
+       inheritalpha 0
+       position 0 -0.5533
+       size 1 1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       scriptclass ""
+       {
+        ImageWidgetClass PlayerPostion {
+		 visible 1
+         clipchildren 0
+         inheritalpha 1
+         ignorepointer 1
+         position 0 0
+         size 300 300
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         priority 100
+         image0 ""
+         imageTexture "RuckVanillaMap/Icons/Survivor.paa"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         "flip u" 0
+         "flip v" 0
+         Mask ""
+         "Transition width" 0
+		 color 0 0 1 0.9
+	    }
+        ImageWidgetClass PlayerDirection {
+         visible 1
+         clipchildren 0
+         inheritalpha 1
+         ignorepointer 1
+         size 300 300
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         priority 100
+         image0 ""
+         imageTexture "RuckVanillaMap/Icons/North.paa"
+         mode blend
+         "src alpha" 1
+         "clamp mode" clamp
+         "stretch mode" stretch_w_h
+         "flip u" 0
+         "flip v" 0
+         Mask ""
+         "Transition width" 0
+		 color 1 1 1 0.9
+		}
+       }
+      }
+	  PanelWidgetClass PlayerNamePanel
+	  {
+		 visible 0
+		 clipchildren 0
+		 inheritalpha 1
+		 ignorepointer 1
+		 position 0 0
+		 size 160 20
+		 hexactpos 1
+		 vexactpos 1
+		 hexactsize 1
+		 vexactsize 1
+		 priority 101
+		 color 0 0 0 0
+		 {
+		  TextWidgetClass PlayerNameText
+		  {
+		   ignorepointer 1
+		   size 1 1
+		   halign center_ref
+		   valign center_ref
+		   hexactpos 0
+		   vexactpos 0
+		   hexactsize 0
+		   vexactsize 0
+		   text ""
+		   font "gui/fonts/sdf_MetronBook24"
+		   "text color" 1 0 0 0.9
+		   "bold text" 1
+		   "exact text" 1
+		   "exact text size" 12
+		   "text halign" center
+		   "text valign" center
+		   color 0 0 1 0.9
+		  }
+	    }
+	  }
+      ImageWidgetClass Map_Tools_Container {
+       visible 1
+       clipchildren 0
+       ignorepointer 1
+       position 0.02 0.025
+       size 445 160
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       scaled 1
+       priority 101
+       scriptclass "SizeToChild"
+       image0 "set:Map2D_UI image:MapLegendBackground"
+       mode blend
+       "src alpha" 1
+       "clamp mode" clamp
+       "stretch mode" stretch_w_h
+	   color 0 0 0 0.8
+       {
+        GridSpacerWidgetClass Map_Legend {
+         visible 1
+         clipchildren 1
+         inheritalpha 0
+         ignorepointer 1
+         color 0 0 0 0.8
+         position 0 0
+         size 1 1
+         valign bottom_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         scaled 1
+         priority 101
+         scriptclass ""
+         style Empty
+         Margin 6
+         "Size To Content H" 1
+         "Size To Content V" 1
+         content_halign center
+         content_valign center
+         Columns 1
+         Rows 2
+         {
+          GridSpacerWidgetClass Tools_Extra {
+           visible 1
+           ignorepointer 1
+           size 1 1
+           halign center_ref
+           valign bottom_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass ""
+           "Ignore invisible" 0
+           Padding 5
+           Margin 4
+           "Size To Content H" 1
+           "Size To Content V" 1
+           content_halign center
+           content_valign center
+           Columns 2
+           Rows 1
+           {
+            PanelWidgetClass Tools_Compass {
+             visible 1
+             ignorepointer 1
+             size 145 142
+             halign center_ref
+             valign bottom_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             {
+              ImageWidgetClass Tools_Compass_Base {
+               ignorepointer 1
+               size 1 1
+               halign center_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               image0 "set:Map2D_UI image:CompassBase"
+               mode blend
+               "src alpha" 1
+               "clamp mode" clamp
+               "stretch mode" stretch_w_h
+              }
+              ImageWidgetClass Tools_Compass_Arrow {
+               ignorepointer 1
+               position 0 0
+               size 1 1
+               halign center_ref
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 0
+               image0 "set:Map2D_UI image:CompassArrow"
+               mode blend
+               "src alpha" 1
+               "clamp mode" clamp
+               "stretch mode" stretch_w_h
+              }
+             }
+            }
+            GridSpacerWidgetClass Tools_GPS {
+			 ignorepointer 1
+			 color 0 0 0 0.7843
+			 size 145 100
+			 halign center_ref
+			 valign bottom_ref
+			 hexactpos 0
+			 vexactpos 0
+			 hexactsize 1
+			 vexactsize 1
+			 style outline
+			 Margin 4
+			 "Size To Content H" 1
+			 "Size To Content V" 1
+			 Columns 1
+			 Rows 5
+			 {
+			  TextWidgetClass Tools_GPS_PlayerName {
+			   ignorepointer 1
+			   color 1 1 1 1
+			   size 256 20
+			   halign right_ref
+			   valign center_ref
+			   hexactpos 1
+			   vexactpos 1
+			   hexactsize 1
+			   vexactsize 1
+			   text ""
+			   font "gui/fonts/sdf_MetronBook24"
+			   "text color" 0 0 0 1
+			   "text offset" 5 0
+			   "bold text" 1
+			   "exact text" 1
+			   "exact text size" 18
+			   "text valign" center
+			  }
+			  PanelWidgetClass Spacer {
+			   ignorepointer 1
+			   size 256 2
+			   halign right_ref
+			   valign center_ref
+			   hexactpos 1
+			   vexactpos 1
+			   hexactsize 1
+			   vexactsize 1
+			  }
+			  GridSpacerWidgetClass Tools_GPS_PosLine {
+			   ignorepointer 1
+			   size 256 20
+			   halign right_ref
+			   valign center_ref
+			   hexactpos 0
+			   vexactpos 0
+			   hexactsize 1
+			   vexactsize 1
+			   "Size To Content H" 1
+			   Columns 2
+			   Rows 1
+			   {
+				TextWidgetClass Tools_GPS_PosLine_Header {
+				 ignorepointer 1
+				 color 1 1 1 1
+				 position 0 0
+				 size 70 24
+				 hexactpos 1
+				 vexactpos 1
+				 hexactsize 1
+				 vexactsize 1
+				 text "Position"
+				 font "gui/fonts/sdf_MetronBook24"
+				 "text color" 1 1 1 1
+				 "text offset" 5 0
+				 "bold text" 1
+				 "exact text" 1
+				 "exact text size" 15
+				 "text valign" center
+				}
+				TextWidgetClass Tools_GPS_PosLine_Value {
+				 ignorepointer 1
+				 color 1 1 1 1
+				 position 0 0
+				 size 196 24
+				 hexactpos 1
+				 vexactpos 1
+				 hexactsize 1
+				 vexactsize 1
+				 text "X 00.00  Y 00.00  Z 000.00"
+				 font "gui/fonts/sdf_MetronBook24"
+				 "text color" 1 1 1 1
+				 "bold text" 1
+				 "exact text" 1
+				 "exact text size" 15
+				 "text halign" right
+				 "text valign" center
+				}
+			   }
+			  }
+			  PanelWidgetClass Spacer0 {
+			   ignorepointer 1
+			   size 256 2
+			   halign right_ref
+			   valign center_ref
+			   hexactpos 1
+			   vexactpos 1
+			   hexactsize 1
+			   vexactsize 1
+			  }
+			  GridSpacerWidgetClass Tools_GPS_Time {
+			   ignorepointer 1
+			   size 256 20
+			   halign right_ref
+			   valign center_ref
+			   hexactpos 0
+			   vexactpos 0
+			   hexactsize 1
+			   vexactsize 1
+			   "Size To Content H" 1
+			   Columns 1
+			   Rows 1
+			   {
+				TextWidgetClass Tools_GPS_Time_Value {
+				 ignorepointer 1
+				 color 1 1 1 1
+				 position 0 0
+				 size 256 24
+				 hexactpos 1
+				 vexactpos 1
+				 hexactsize 1
+				 vexactsize 1
+				 text "12:36"
+				 font "gui/fonts/sdf_MetronBook24"
+				 "text color" 1 1 1 1
+				 "bold text" 1
+				 "exact text" 1
+				 "exact text size" 15
+				 "text halign" right
+				 "text valign" center
+				}
+			   }
+			  }
+              GridSpacerWidgetClass Tools_GPS_Date {
+			   ignorepointer 1
+			   size 256 20
+			   halign right_ref
+			   valign center_ref
+			   hexactpos 0
+			   vexactpos 0
+			   hexactsize 1
+			   vexactsize 1
+			   "Size To Content H" 1
+			   Columns 1
+			   Rows 1
+			   {
+				TextWidgetClass Tools_GPS_Date_Value {
+				 ignorepointer 1
+				 color 1 1 1 1
+				 position 0 0
+				 size 256 24
+				 hexactpos 1
+				 vexactpos 1
+				 hexactsize 1
+				 vexactsize 1
+				 text "10/11/96"
+				 font "gui/fonts/sdf_MetronBook24"
+				 "text color" 1 1 1 1
+				 "bold text" 1
+				 "exact text" 1
+				 "exact text size" 15
+				 "text halign" right
+				 "text valign" center
+				}
+			   }
+			  }
+              PanelWidgetClass Spacer1 {
+			   ignorepointer 1
+			   size 256 4
+			   halign right_ref
+			   valign center_ref
+			   hexactpos 1
+			   vexactpos 1
+			   hexactsize 1
+			   vexactsize 1
+			  }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

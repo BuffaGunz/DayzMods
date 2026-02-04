@@ -1,0 +1,91 @@
+FrameWidgetClass Ruck3DMarkerRoot
+{
+	clipchildren 0
+	ignorepointer 1
+	color 1 1 1 1
+	position 0 0
+	size 180 60
+	halign left_ref
+	valign top_ref
+	hexactpos 1
+	vexactpos 1
+	hexactsize 1
+	vexactsize 1
+	priority 200
+	{
+		ImageWidgetClass Icon
+		{
+			visible 1
+			clipchildren 0
+			ignorepointer 1
+			position 0 0
+			size 32 32
+			hexactpos 1
+			vexactpos 1
+			hexactsize 1
+			vexactsize 1
+			priority 201
+			image0 ""
+			mode blend
+			"src alpha" 1
+			"clamp mode" clamp
+			"stretch mode" stretch_w_h
+			"flip u" 0
+			"flip v" 0
+			Mask ""
+			"Transition width" 0
+			color 1 1 1 1
+		}
+		PanelWidgetClass TextBG
+		{
+			visible 1
+			ignorepointer 1
+			position -74 34
+			size 180 22
+			hexactpos 1
+			vexactpos 1
+			hexactsize 1
+			vexactsize 1
+			color 0 0 0 0.55
+			style rover_sim_colorable
+		}
+		TextWidgetClass Name
+		{
+			visible 1
+			ignorepointer 1
+			position -74 34
+			size 180 18
+			hexactpos 1
+			vexactpos 1
+			hexactsize 1
+			vexactsize 1
+			text "Marker"
+			font "gui/fonts/sdf_MetronBook24"
+			"text color" 1 1 1 1
+			"bold text" 1
+			"exact text" 1
+			"exact text size" 12
+			"text halign" center
+			"text valign" center
+		}
+		TextWidgetClass Distance
+		{
+			visible 1
+			ignorepointer 1
+			position -74 50
+			size 180 18
+			hexactpos 1
+			vexactpos 1
+			hexactsize 1
+			vexactsize 1
+			text "0m"
+			font "gui/fonts/sdf_MetronBook24"
+			"text color" 1 1 1 1
+			"bold text" 1
+			"exact text" 1
+			"exact text size" 10
+			"text halign" center
+			"text valign" center
+		}
+	}
+}

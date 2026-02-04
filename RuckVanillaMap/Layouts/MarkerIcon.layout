@@ -1,0 +1,72 @@
+FrameWidgetClass MarkerIconRoot
+{
+	clipchildren 0
+	ignorepointer 1
+	color 1 1 1 1
+	position 0 0
+	size 32 32
+	halign left_ref
+	valign top_ref
+	hexactpos 1
+	vexactpos 1
+	hexactsize 1
+	vexactsize 1
+	priority 150
+	{
+		ImageWidgetClass Icon
+		{
+			visible 1
+			clipchildren 0
+			ignorepointer 1
+			position 0 0
+			size 32 32
+			hexactpos 1
+			vexactpos 1
+			hexactsize 1
+			vexactsize 1
+			priority 151
+			image0 ""
+			mode blend
+			"src alpha" 1
+			"clamp mode" clamp
+			"stretch mode" stretch_w_h
+			"flip u" 0
+			"flip v" 0
+			Mask ""
+			"Transition width" 0
+			color 1 1 1 1
+		}
+		PanelWidgetClass LabelBG
+		{
+			visible 0
+			ignorepointer 1
+			position -64 28
+			size 160 22
+			hexactpos 1
+			vexactpos 1
+			hexactsize 1
+			vexactsize 1
+			color 0 0 0 0.55
+			style rover_sim_colorable
+		}
+		TextWidgetClass Label
+		{
+			visible 0
+			ignorepointer 1
+			position -64 30
+			size 160 18
+			hexactpos 1
+			vexactpos 1
+			hexactsize 1
+			vexactsize 1
+			text ""
+			font "gui/fonts/sdf_MetronBook24"
+			"text color" 1 1 1 1
+			"bold text" 1
+			"exact text" 1
+			"exact text size" 12
+			"text halign" center
+			"text valign" center
+		}
+	}
+}

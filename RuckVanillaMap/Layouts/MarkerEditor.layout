@@ -1,0 +1,247 @@
+FrameWidgetClass MarkerEditorRoot
+{
+	clipchildren 0
+	color 1 1 1 1
+	position 0 0
+	size 520 200
+	halign center_ref
+	valign center_ref
+	hexactpos 1
+	vexactpos 1
+	hexactsize 1
+	vexactsize 1
+	priority 300
+	{
+		WindowWidgetClass WindowWidget
+		{
+			visible 1
+			position 0 0
+			size 520 200
+			halign center_ref
+			valign center_ref
+			hexactpos 1
+			vexactpos 1
+			hexactsize 1
+			vexactsize 1
+			style rover_sim_black
+			{
+				PanelWidgetClass BG
+				{
+					visible 1
+					clipchildren 0
+					color 0 0 0 0.80
+					position 0 0
+					size 520 200
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					draggable 1
+					style rover_sim_colorable
+				}
+				TextWidgetClass TitleText
+				{
+					visible 1
+					ignorepointer 1
+					position 16 12
+					size 488 30
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					text "Edit Marker"
+					font "gui/fonts/sdf_MetronBook24"
+					"text color" 1 1 1 1
+					"bold text" 1
+					"exact text" 1
+					"exact text size" 22
+					"text halign" left
+					"text valign" center
+				}
+				TextWidgetClass NameLabel
+				{
+					visible 1
+					ignorepointer 1
+					position 16 56
+					size 110 24
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					text "Name:"
+					font "gui/fonts/sdf_MetronBook24"
+					"text color" 1 1 1 1
+					"bold text" 1
+					"exact text" 1
+					"exact text size" 18
+					"text halign" left
+					"text valign" center
+				}
+				EditBoxWidgetClass NameEdit
+				{
+					visible 1
+					position 130 54
+					size 374 28
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					text ""
+					font "gui/fonts/sdf_MetronBook24"
+					"exact text" 1
+					"exact text size" 18
+				}
+				TextWidgetClass IconLabel
+				{
+					visible 1
+					ignorepointer 1
+					position 16 96
+					size 110 24
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					text "Icon:"
+					font "gui/fonts/sdf_MetronBook24"
+					"text color" 1 1 1 1
+					"bold text" 1
+					"exact text" 1
+					"exact text size" 18
+					"text halign" left
+					"text valign" center
+				}
+				ButtonWidgetClass PrevIcon
+				{
+					visible 1
+					position 130 92
+					size 40 28
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					text "<"
+				}
+				PanelWidgetClass IconPanel
+				{
+					visible 1
+					clipchildren 0
+					color 1 1 1 0.06
+					position 174 92
+					size 28 28
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					style rover_sim_colorable
+					{
+						ImageWidgetClass IconPreview
+						{
+							visible 1
+							ignorepointer 1
+							position 0 0
+							size 28 28
+							hexactpos 1
+							vexactpos 1
+							hexactsize 1
+							vexactsize 1
+							image0 ""
+							mode blend
+							"src alpha" 1
+							"clamp mode" clamp
+							"stretch mode" stretch_w_h
+							color 1 1 1 1
+						}
+					}
+				}
+				ButtonWidgetClass NextIcon
+				{
+					visible 1
+					position 208 92
+					size 40 28
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					text ">"
+				}
+				TextWidgetClass ColorLabel
+				{
+					visible 1
+					ignorepointer 1
+					position 248 96
+					size 60 24
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					text "Color:"
+					font "gui/fonts/sdf_MetronBook24"
+					"text color" 1 1 1 1
+					"bold text" 1
+					"exact text" 1
+					"exact text size" 18
+					"text halign" right
+					"text valign" center
+				}
+				ButtonWidgetClass PrevColor
+				{
+					visible 1
+					position 314 92
+					size 40 28
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					text "<"
+				}
+				PanelWidgetClass ColorSwatch
+				{
+					visible 1
+					ignorepointer 1
+					position 360 92
+					size 28 28
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					color 1 1 1 1
+					style rover_sim_colorable
+				}
+				ButtonWidgetClass NextColor
+				{
+					visible 1
+					position 398 92
+					size 40 28
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					text ">"
+				}
+				ButtonWidgetClass Save
+				{
+					visible 1
+					position 266 140
+					size 110 28
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					text "Save"
+				}
+
+				ButtonWidgetClass Cancel
+				{
+					visible 1
+					position 394 140
+					size 110 28
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					text "Cancel"
+				}
+			}
+		}
+	}
+}

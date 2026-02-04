@@ -1,0 +1,118 @@
+FrameWidgetClass RightClickRoot
+{
+	visible 0
+	clipchildren 0
+	ignorepointer 0
+	color 1 1 1 1
+	position 0 0
+	size 240 140
+	halign left_ref
+	valign top_ref
+	hexactpos 1
+	vexactpos 1
+	hexactsize 1
+	vexactsize 1
+	priority 220
+	{
+		PanelWidgetClass RightClickMenu
+		{
+			visible 0
+			clipchildren 0
+			ignorepointer 0
+			color 1 1 1 1
+			position 0 0
+			size 240 140
+			halign left_ref
+			valign top_ref
+			hexactpos 1
+			vexactpos 1
+			hexactsize 1
+			vexactsize 1
+			{
+				PanelWidgetClass CreateBox
+				{
+					visible 0
+					position 0 0
+					size 240 56
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					{
+						PanelWidgetClass BG_Create
+						{
+							visible 1
+							ignorepointer 1
+							position 0 0
+							size 240 56
+							hexactpos 1
+							vexactpos 1
+							hexactsize 1
+							vexactsize 1
+							color 0 0 0 0.78
+							style rover_sim_colorable
+						}
+						ButtonWidgetClass Create
+						{
+							visible 1
+							position 10 10
+							size 220 36
+							hexactpos 1
+							vexactpos 1
+							hexactsize 1
+							vexactsize 1
+							text "Create"
+						}
+					}
+				}
+				PanelWidgetClass EditBox
+				{
+					visible 0
+					position 0 0
+					size 240 98
+					hexactpos 1
+					vexactpos 1
+					hexactsize 1
+					vexactsize 1
+					{
+						PanelWidgetClass BG_Edit
+						{
+							visible 1
+							ignorepointer 1
+							position 0 0
+							size 240 98
+							hexactpos 1
+							vexactpos 1
+							hexactsize 1
+							vexactsize 1
+							color 0 0 0 0.78
+							style rover_sim_colorable
+						}
+						ButtonWidgetClass Edit
+						{
+							visible 1
+							position 10 10
+							size 220 36
+							hexactpos 1
+							vexactpos 1
+							hexactsize 1
+							vexactsize 1
+							text "Edit"
+						}
+						ButtonWidgetClass Delete
+						{
+							visible 1
+							position 10 52
+							size 220 36
+							hexactpos 1
+							vexactpos 1
+							hexactsize 1
+							vexactsize 1
+							text "Delete"
+						}
+					}
+				}
+			}
+		}
+	}
+}
