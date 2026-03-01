@@ -1,26 +1,59 @@
+class PlaneCrashSiteData
+{
+    vector Position;
+    string NotificationMessage;
+    
+    void PlaneCrashSiteData(vector pos, string msg)
+    {
+        Position = pos;
+        NotificationMessage = msg;
+    }
+}
+
 class PlaneCrashSettings
 {
     int CrashIntervalMin = 1200000;
     int CrashIntervalMax = 1800000;
 
     bool EnableCustomCrashSites = false;
-    bool EnableCustomLootItems = false;
-	
+	bool EnableGasZones = false;
+	int GasZoneChancePercent = 100;
+
 	bool EnableExpansionMarkers = true;
 	bool EnableBasicMapMarkers = true;
 	bool EnableLBMasterMarkers = true;
+	bool EnableRuckMapMarkers = true;
+	
+	bool PristineLoot = false;
 	
 	bool EnableContainerBlue   = true;
 	bool EnableContainerRed    = true;
 	bool EnableContainerYellow = true;
 	bool EnableContainerOrange = true;
+	
+	bool EnableCustomLootItemsRed = false;
+    bool EnableCustomLootItemsBlue = false;
+    bool EnableCustomLootItemsYellow = false;
+    bool EnableCustomLootItemsOrange = false;
 
-    ref array<vector> CustomCrashSites;
-    ref array<string> CustomLootItems;
+    ref array<ref PlaneCrashSiteData> CustomCrashSites;
+    ref array<string> CustomLootItemsRed;
+    ref array<string> CustomLootItemsBlue;
+    ref array<string> CustomLootItemsYellow;
+    ref array<string> CustomLootItemsOrange;
 
-    int ZombieCount = 15;      // Max 40
-    int MaxLootItems = 15;     // Max 30
+    int ZombieCount = 15; 
+    
+    int MaxLootItemsRed = 15;
+    int MaxLootItemsBlue = 30;
+    int MaxLootItemsYellow = 30;
+    int MaxLootItemsOrange = 20; 
+	
     bool EnableCrashNotification = false;
+	
+	string NotificationTitle = "Plane Crash";
+    bool ShowCoordinatesInNotification = true;
+
 
     bool EnableCustomZombieTypes = false;
     ref array<string> CustomZombieTypes;
@@ -29,8 +62,11 @@ class PlaneCrashSettings
 
     void PlaneCrashSettings()
     {
-        CustomCrashSites = new array<vector>();
-        CustomLootItems = new array<string>();
+        CustomCrashSites = new array<ref PlaneCrashSiteData>();
+        CustomLootItemsRed = new array<string>();
+        CustomLootItemsBlue = new array<string>();
+        CustomLootItemsYellow = new array<string>();
+        CustomLootItemsOrange = new array<string>();
         CustomZombieTypes = new array<string>();
     }
 
@@ -43,7 +79,6 @@ class PlaneCrashSettings
 
     private static void Load()
     {
-        // 🔁 Renamed to shared Ruckus folder
         string folder = "$profile:Ruckus";
         string path = folder + "/PlaneCrashSettings.json";
 

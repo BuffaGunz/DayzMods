@@ -173,7 +173,58 @@ class CfgVehicles
 			
 		};
 	};
-	class RuckCrashStorage: Container_Base
+	class RuckCrashStorageRed: Container_Base
+	{
+		scope=2;
+		model="DZ\structures\Military\Misc\Misc_SupplyBox2.p3d";
+		displayName="";
+		descriptionShort="";
+		inventorySlot[]=
+		{
+			"Truck_01_WoodenCrate1"
+		};
+		class Cargo
+		{
+			itemsCargoSize[]={10,100};
+			openable=0;
+			allowOwnedCargoManipulation=1;
+		};
+	};
+	class RuckCrashStorageBlue: Container_Base
+	{
+		scope=2;
+		model="DZ\structures\Military\Misc\Misc_SupplyBox2.p3d";
+		displayName="";
+		descriptionShort="";
+		inventorySlot[]=
+		{
+			"Truck_01_WoodenCrate1"
+		};
+		class Cargo
+		{
+			itemsCargoSize[]={10,100};
+			openable=0;
+			allowOwnedCargoManipulation=1;
+		};
+	};
+	class RuckCrashStorageOrange: Container_Base
+	{
+		scope=2;
+		model="DZ\structures\Military\Misc\Misc_SupplyBox2.p3d";
+		displayName="";
+		descriptionShort="";
+		inventorySlot[]=
+		{
+			"Truck_01_WoodenCrate1"
+		};
+		class Cargo
+		{
+			itemsCargoSize[]={10,100};
+			openable=0;
+			allowOwnedCargoManipulation=1;
+		};
+	};
+	class RuckCrashStorageYellow: Container_Base
 	{
 		scope=2;
 		model="DZ\structures\Military\Misc\Misc_SupplyBox2.p3d";

@@ -1,7 +1,6 @@
 class PlaneCrash extends CrashBase
 {
 	protected string      m_PlaneCrash_SoundSet = "PlaneCrash_SoundSet";
-	protected EffectSound m_PlaneCrash_Sound;
 	
 	static const int RUCK_MAX_CONTAINER_LIFETIME   = 1800000; 
 	static const int RUCK_CHECK_INTERVAL           = 100000;  
@@ -9,6 +8,18 @@ class PlaneCrash extends CrashBase
 	
 	protected int  m_RuckElapsedMs = 0;    
 	protected bool m_RuckTimerArmed = false; 
+	static bool m_RuckInit = RuckInit();
+	
+	static bool RuckInit()
+	{
+		CrashSoundSets.RegisterSoundSet("PlaneCrash_SoundSet");
+		return true;
+	}
+	
+	string GetSoundSet()
+	{
+		return "PlaneCrash_SoundSet";
+	}
 
 	override void EEInit()
 	{
@@ -21,7 +32,6 @@ class PlaneCrash extends CrashBase
 	
 		if (!GetGame().IsDedicatedServer())
 		{
-			PlaySoundSet(m_PlaneCrash_Sound, m_PlaneCrash_SoundSet, 0.0, 0.0);
 			m_ParticleEfx = Particle.PlayOnObject(ParticleList.SMOKING_HELI_WRECK, this, Vector(4.7, -2.4, -2));
 		}
 		
@@ -31,11 +41,14 @@ class PlaneCrash extends CrashBase
 	{
 		super.OnStoreSave(ctx);
 
+		int dataVersion = 1;
+		ctx.Write(dataVersion);
+
 		vector wreckPos = GetPosition();
 		vector wreckDir = GetDirection();
 		ctx.Write(wreckPos);
 		ctx.Write(wreckDir);
-		
+
 		ctx.Write(m_RuckElapsedMs);
 		ctx.Write(m_RuckTimerArmed);
 
@@ -47,12 +60,22 @@ class PlaneCrash extends CrashBase
 		if (!super.OnStoreLoad(ctx, version))
 			return false;
 
+		int dataVersion = 0;
+
 		vector wreckPos;
 		vector wreckDir;
 
-		ctx.Read(wreckPos);
-		ctx.Read(wreckDir);
-		
+		if (!ctx.Read(dataVersion))
+		{
+			return true;
+		}
+
+		if (dataVersion > 100)
+			return true;
+
+		if (!ctx.Read(wreckPos)) return true;
+		if (!ctx.Read(wreckDir)) return true;
+
 		if (!ctx.Read(m_RuckElapsedMs))  m_RuckElapsedMs  = 0;
 		if (!ctx.Read(m_RuckTimerArmed)) m_RuckTimerArmed = false;
 
@@ -64,13 +87,9 @@ class PlaneCrash extends CrashBase
 		GetGame().UpdatePathgraphRegionByObject(this);
 
 		PrintFormat("[ShipWreck] Loaded wreck at pos: %1 dir: %2", wreckPos, wreckDir);
-		
+
 		#ifdef SERVER
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.Ruck_CreateAllMarkersAfterLoad, 100, false);
-		#endif
-		
-		#ifdef SERVER
-		Ruck_StartTimerIfNeeded();
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.Ruck_CreateAllMarkersAfterLoad, 100, false);
 		#endif
 
 		return true;
@@ -88,6 +107,9 @@ class PlaneCrash extends CrashBase
 			#ifdef EXPANSIONMODNAVIGATION
 				RuckPlaneExpansionMarkerService.ServerRecreateAfterLoad(this);
 			#endif
+			#ifdef RUCKMAP
+				RuckMapCrashCache.ServerRecreateAfterLoad(this);
+			#endif
 		#endif
 	}
 
@@ -99,11 +121,9 @@ class PlaneCrash extends CrashBase
 		if (GetGame()) GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.Ruck_TimerTick);
 		m_RuckTimerArmed = false;
 
-		if (m_PlaneCrash_Sound)
-			StopSoundSet(m_PlaneCrash_Sound);
 		if (!GetGame().IsDedicatedServer() && m_ParticleEfx)
 			m_ParticleEfx.Stop();
-
+		
 		#ifdef SERVER
 			#ifdef BASICMAP
 				RuckPlaneBasicMarkerService.ServerRemoveMarkerFor(this);
@@ -113,6 +133,9 @@ class PlaneCrash extends CrashBase
 			#endif
 			#ifdef EXPANSIONMODNAVIGATION
 				RuckPlaneExpansionMarkerService.ServerRemoveMarkerFor(this);
+			#endif
+			#ifdef RUCKMAP
+				RuckMapCrashCache.ServerRemove(this);
 			#endif
 		#endif
 	}
@@ -129,7 +152,7 @@ class PlaneCrash extends CrashBase
 
 		if (settings.EnableCustomCrashSites && settings.CustomCrashSites && settings.CustomCrashSites.Count() > 0)
 		{
-			site = settings.CustomCrashSites.GetRandomElement();
+			site = settings.CustomCrashSites.GetRandomElement().Position;
 			site[1] = GetGame().SurfaceY(site[0], site[2]);
 			Print("📍 Using custom Crash site: " + site);
 			return site;
@@ -149,7 +172,7 @@ class PlaneCrash extends CrashBase
 		Print("❌ Failed to find valid Crash site, aborting spawn.");
 		return vector.Zero;
 	}
-
+	
 	static vector GenerateCrashSiteInRange(float minXZ, float maxXZ)
 	{
 		const int MAX_ATTEMPTS = 500;
@@ -258,7 +281,24 @@ class PlaneCrash extends CrashBase
 
 	static void SpawnSite()
 	{
-		vector crashPos = FindValidCrashSite();
+		auto settings = PlaneCrashSettings.Get();
+		vector crashPos;
+		string customTail;
+
+		if (settings.EnableCustomCrashSites && settings.CustomCrashSites.Count() > 0)
+		{
+			PlaneCrashSiteData selectedSite = settings.CustomCrashSites.GetRandomElement();
+			crashPos = selectedSite.Position;
+			crashPos[1] = GetGame().SurfaceY(crashPos[0], crashPos[2]);
+			customTail = selectedSite.NotificationMessage;
+		}
+		else
+		{
+			crashPos = FindValidCrashSite();
+			crashPos[1] = GetGame().SurfaceY(crashPos[0], crashPos[2]);
+			customTail = "Crash spotted at";
+		}
+
 		if (crashPos == vector.Zero)
 		{
 			Print("[PlaneCrash] ❌ No valid crash site found. Spawn aborted.");
@@ -280,9 +320,10 @@ class PlaneCrash extends CrashBase
 			}
 		}
 
-		EntityAI wreck = EntityAI.Cast(GetGame().CreateObject("PlaneCrash", crashPos));
+		PlaneCrash wreck = PlaneCrash.Cast(GetGame().CreateObject("PlaneCrash", crashPos));
 		if (!wreck) return;
 
+		wreck.RequestSoundEvent(); 
 		wreck.PlaceOnSurface();
 
 		vector wreckPos = wreck.GetPosition();
@@ -300,12 +341,12 @@ class PlaneCrash extends CrashBase
 		wreckMat[2] = wreckRight;
 
 		wreck.SetOrientation(Math3D.MatrixToAngles(wreckMat));
-		wreck.SetPosition(wreckPos); 
-
+		wreck.SetPosition(wreckPos);
+		
 		wreck.SetAffectPathgraph(true, true);
 		wreck.SetSynchDirty();
 		GetGame().UpdatePathgraphRegionByObject(wreck);
-		
+
 		Print("[PlaneCrash] Wreck placed and navmesh updated.");
 
 		string selectedType = PickEnabledCrashContainerType();
@@ -344,16 +385,51 @@ class PlaneCrash extends CrashBase
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(FillContainerWithRandomLoot, 2000, false, container);
 		}
 
+		bool GasSpawned = false;
+
+		if (settings && settings.EnableGasZones)
+		{
+			int chance = Math.Clamp(settings.GasZoneChancePercent, 0, 100);
+			if (chance >= 100 || (chance > 0 && Math.RandomIntInclusive(1, 100) <= chance))
+			{
+				vector pos = container.GetPosition();
+				pos[1] = GetGame().SurfaceY(pos[0], pos[2]) + 0.5;
+				
+				ContaminatedArea_Static AreaCloud = ContaminatedArea_Static.Cast(GetGame().CreateObject("ContaminatedArea_Static", pos));
+				ContaminatedArea_Dynamic AreaDmg  = ContaminatedArea_Dynamic.Cast(GetGame().CreateObject("ContaminatedArea_Dynamic", pos));
+
+				if (AreaCloud || AreaDmg)
+				{
+					GasSpawned = true;
+
+					if (AreaCloud)
+					{
+						AreaCloud.SetSynchDirty();
+						GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, 15 * 60 * 1000, false, AreaCloud);
+					}
+
+					if (AreaDmg)
+					{
+						AreaDmg.SetSynchDirty();
+						GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, 15 * 60 * 1000, false, AreaDmg);
+					}
+				}
+			}
+		}
+	
 		if (keyName != "")
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SpawnZombiesWithKey, 2000, false, crashPos, keyName);
+			if (GasSpawned)
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SpawnZombiesWithKey_NBC, 2000, false, crashPos, keyName);
+			else
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SpawnZombiesWithKey, 2000, false, crashPos, keyName);
 		}
 
-		if (PlaneCrashSettings.Get().EnableCrashNotification)
+		if (settings.EnableCrashNotification)
 		{
-			SendCrashNotification(wreck.GetPosition());
+			SendCrashNotification(crashPos, customTail);
 		}
-		
+
 		#ifdef SERVER
 			string wtype = wreck.GetType();
 
@@ -366,6 +442,10 @@ class PlaneCrash extends CrashBase
 			#ifdef EXPANSIONMODNAVIGATION
 				RuckPlaneExpansionMarkerService.ServerCreateMarkerForWreck(wtype, wreck);
 			#endif
+			#ifdef RUCKMAP
+				RuckMapCrashCache.ServerAdd(wreck);
+			#endif
+
 		#endif
 	}
 	
@@ -409,6 +489,52 @@ class PlaneCrash extends CrashBase
 				GetGame().ObjectDelete(this);
 				PrintFormat("[Cleanup] Deleted container (timer): %1", this);
 				return;
+			}
+		}
+	}
+	
+	static void SpawnZombiesWithKey_NBC(vector center, string keyName)
+	{
+		auto settings = PlaneCrashSettings.Get();
+
+		int zombieCount = settings.ZombieCount;
+		if (zombieCount > 40) zombieCount = 40;
+		if (zombieCount < 1) zombieCount = 1;
+
+		array<string> zombieTypes = {
+			"ZmbM_NBC_Grey",
+			"ZmbM_NBC_White",
+			"ZmbM_NBC_Yellow"
+		};
+
+		int keyZombieIndex = Math.RandomInt(0, zombieCount);
+
+		for (int i = 0; i < zombieCount; ++i)
+		{
+			vector pos = center + Vector(Math.RandomFloat(-10, 10), 0, Math.RandomFloat(-10, 10));
+			pos[1] = GetGame().SurfaceY(pos[0], pos[2]);
+			string zombieType = zombieTypes.GetRandomElement();
+
+			DayZInfected z = DayZInfected.Cast(GetGame().CreateObject(zombieType, pos, false, true));
+			if (z)
+			{
+				z.SetAffectPathgraph(true, true);
+				z.SetSynchDirty();
+				PrintFormat("[NavmeshPatch] NBC zombie navmesh forced for: %1", zombieType);
+
+				if (i == keyZombieIndex && keyName != "")
+				{
+					ItemBase keyItem = ItemBase.Cast(z.GetInventory().CreateInInventory(keyName));
+					if (keyItem)
+					{
+						keyItem.SetHealth01("", "", 0.10);
+						PrintFormat("[PlaneCrash] Spawned key '%1' on NBC zombie: %2", keyName, z);
+					}
+					else
+					{
+						PrintFormat("[PlaneCrash] ERROR: Failed to create key '%1' on NBC zombie: %2", keyName, z);
+					}
+				}
 			}
 		}
 	}
@@ -474,6 +600,53 @@ class PlaneCrash extends CrashBase
 		}
 	}
 	
+	static string PickEnabledContainerType()
+	{
+		auto settings = PlaneCrashSettings.Get();
+
+		ref array<string> candidates = new array<string>();
+
+		if (settings && settings.EnableContainerBlue)   candidates.Insert("WreckContainerBlue");
+		if (settings && settings.EnableContainerRed)    candidates.Insert("WreckContainerRed");
+		if (settings && settings.EnableContainerYellow) candidates.Insert("WreckContainerYellow");
+		if (settings && settings.EnableContainerOrange) candidates.Insert("WreckContainerOrange");
+
+		if (candidates.Count() == 0)
+		{
+			candidates.Insert("WreckContainerBlue");
+			candidates.Insert("WreckContainerRed");
+			candidates.Insert("WreckContainerYellow");
+			candidates.Insert("WreckContainerOrange");
+		}
+
+		return candidates.GetRandomElement();
+	}
+	
+	static bool HasCustomLootFor(string color, PlaneCrashSettings settings)
+	{
+		if (!settings) return false;
+
+		if (color == "Red")
+		{
+			return settings.EnableCustomLootItemsRed && settings.CustomLootItemsRed && settings.CustomLootItemsRed.Count() > 0;
+		}
+		else if (color == "Blue")
+		{
+			return settings.EnableCustomLootItemsBlue && settings.CustomLootItemsBlue && settings.CustomLootItemsBlue.Count() > 0;
+		}
+		else if (color == "Yellow")
+		{
+			return settings.EnableCustomLootItemsYellow && settings.CustomLootItemsYellow && settings.CustomLootItemsYellow.Count() > 0;
+		}
+		else if (color == "Orange")
+		{
+			return settings.EnableCustomLootItemsOrange && settings.CustomLootItemsOrange && settings.CustomLootItemsOrange.Count() > 0;
+		}
+
+		return false;
+	}
+	
+	
 	static EntityAI FindAttachmentByType(EntityAI parent, string type)
 	{
 		for (int i = 0; i < parent.GetInventory().AttachmentCount(); ++i)
@@ -492,13 +665,10 @@ class PlaneCrash extends CrashBase
 
 		switch (containerType)
 		{
-			case "WreckContainerRed":
-			case "WreckContainerBlue":
-			case "WreckContainerYellow":
-			case "WreckContainerOrange":
-				crateType = "RuckCrashStorage";
-				break;
-
+			case "WreckContainerRed":    crateType = "RuckCrashStorageRed"; break;
+			case "WreckContainerBlue":   crateType = "RuckCrashStorageBlue"; break;
+			case "WreckContainerYellow": crateType = "RuckCrashStorageYellow"; break;
+			case "WreckContainerOrange": crateType = "RuckCrashStorageOrange"; break;
 			default:
 				Print("⚠️ Unknown container type: " + containerType);
 				return;
@@ -507,25 +677,21 @@ class PlaneCrash extends CrashBase
 		EntityAI crate = FindAttachmentByType(container, crateType);
 		if (!crate)
 		{
-			Print("❌ No attached storage crate of type " + crateType + " found on container: " + containerType);
+			Print("⚠️ No attached storage crate of type " + crateType + " found on container: " + containerType);
 			return;
 		}
 
 		auto settings = PlaneCrashSettings.Get();
 		ref array<string> lootPool = new array<string>();
+
 		int maxLoot = 0;
 
-		if (crateType == "RuckCrashStorage")
+		if (crateType == "RuckCrashStorageRed")
 		{
-			maxLoot = Math.Clamp(settings.MaxLootItems, 1, 30);
-
-			if (settings.EnableCustomLootItems && settings.CustomLootItems && settings.CustomLootItems.Count() > 0)
-			{
-				lootPool = settings.CustomLootItems;
-				Print("🧰 Using custom loot items from config");
-			}
+			maxLoot = Math.Clamp(settings.MaxLootItemsRed, 1, 30);
+			if (HasCustomLootFor("Red", settings))
+				lootPool = settings.CustomLootItemsRed;
 			else
-			{
 				lootPool.InsertAll({
 					"FNX45","VSS","ASVAL","Vikhr","SV98","Winchester70","Mosin9130","SKS","AKM","AK74",
 					"AKS74U","AK101","M4A1","M16A2","FAMAS","Aug","AugShort","FAL","SVD","SVD_Wooden",
@@ -542,9 +708,82 @@ class PlaneCrash extends CrashBase
 					"PainkillerTablets", "StartKitIV", "BloodTestKit", "CharcoalTablets", "ChelatingTablets", "AntiChemInjector",
 					"GP5GasMask", "AirborneMask", "HipPack_Medical", "FirstAidKit"
 				});
-			}
 		}
-	
+		else if (crateType == "RuckCrashStorageBlue")
+		{
+			maxLoot = Math.Clamp(settings.MaxLootItemsBlue, 1, 30);
+			if (HasCustomLootFor("Blue", settings))
+				lootPool = settings.CustomLootItemsBlue;
+			else
+				lootPool.InsertAll({
+					"FNX45","VSS","ASVAL","Vikhr","SV98","Winchester70","Mosin9130","SKS","AKM","AK74",
+					"AKS74U","AK101","M4A1","M16A2","FAMAS","Aug","AugShort","FAL","SVD","SVD_Wooden",
+					"Engraved1911","B95","Saiga","Deagle","Deagle_Gold","Scout","CZ550","R12","M14","M79",
+					"PlateCarrierVest","PlateCarrierVest_Black","PlateCarrierVest_Green","PlateCarrierVest_Camo","PlateCarrierVest_Winter",
+					"GorkaHelmet","GorkaHelmet_Black","Mich2001Helmet","AliceBag_Green","AliceBag_Black","AliceBag_Camo",
+					"OMKPants_Navy","OMKJacket_Navy","MilitaryBoots_Black","MilitaryBelt",
+					"Plastic_Explosive","AmmoBox_762x54_20Rnd","Ammo_308Win","AmmoBox_545x39_20Rnd","AmmoBox_556x45_20Rnd",
+					"AmmoBox_762x39_20Rnd","AmmoBox_9x39AP_20Rnd","Ammo_40mm_Explosive","Ammo_40mm_ChemGas",
+					"NVGoggles","NVGHeadstrap","Headtorch_Grey","Headtorch_Black","UniversalLight", "M67Grenade", "RGD5Grenade",
+					"M4_Suppressor","AK_Suppressor","PistolSuppressor", "AmmoBox_00buck_10rnd", "AmmoBox_22_50Rnd", "AmmoBox_308WinTracer_20Rnd", "AmmoBox_357_20Rnd", "AmmoBox_762x39_20Rnd", "AmmoBox_9x19_25rnd",
+					"SalineBagIV", "BandageDressing", "Epinephrine", "Morphine", "VitaminBottle", "BloodBagEmpty", "TetracyclineAntibiotics",
+					"GasMask_Filter", "IodineTincture", "NBCBootsGray", "NBCGlovesGray", "NBCHoodGray", "NBCJacketGray","NBCPantsGray",
+					"PainkillerTablets", "StartKitIV", "BloodTestKit", "CharcoalTablets", "ChelatingTablets", "AntiChemInjector",
+					"GP5GasMask", "AirborneMask", "HipPack_Medical", "FirstAidKit"
+				});
+		}
+		else if (crateType == "RuckCrashStorageYellow")
+		{
+			maxLoot = Math.Clamp(settings.MaxLootItemsYellow, 1, 30);
+			if (HasCustomLootFor("Yellow", settings))
+				lootPool = settings.CustomLootItemsYellow;
+			else
+				lootPool.InsertAll({
+					"FNX45","VSS","ASVAL","Vikhr","SV98","Winchester70","Mosin9130","SKS","AKM","AK74",
+					"AKS74U","AK101","M4A1","M16A2","FAMAS","Aug","AugShort","FAL","SVD","SVD_Wooden",
+					"Engraved1911","B95","Saiga","Deagle","Deagle_Gold","Scout","CZ550","R12","M14","M79",
+					"PlateCarrierVest","PlateCarrierVest_Black","PlateCarrierVest_Green","PlateCarrierVest_Camo","PlateCarrierVest_Winter",
+					"GorkaHelmet","GorkaHelmet_Black","Mich2001Helmet","AliceBag_Green","AliceBag_Black","AliceBag_Camo",
+					"OMKPants_Navy","OMKJacket_Navy","MilitaryBoots_Black","MilitaryBelt",
+					"Plastic_Explosive","AmmoBox_762x54_20Rnd","Ammo_308Win","AmmoBox_545x39_20Rnd","AmmoBox_556x45_20Rnd",
+					"AmmoBox_762x39_20Rnd","AmmoBox_9x39AP_20Rnd","Ammo_40mm_Explosive","Ammo_40mm_ChemGas",
+					"NVGoggles","NVGHeadstrap","Headtorch_Grey","Headtorch_Black","UniversalLight", "M67Grenade", "RGD5Grenade",
+					"M4_Suppressor","AK_Suppressor","PistolSuppressor", "AmmoBox_00buck_10rnd", "AmmoBox_22_50Rnd", "AmmoBox_308WinTracer_20Rnd", "AmmoBox_357_20Rnd", "AmmoBox_762x39_20Rnd", "AmmoBox_9x19_25rnd",
+					"SalineBagIV", "BandageDressing", "Epinephrine", "Morphine", "VitaminBottle", "BloodBagEmpty", "TetracyclineAntibiotics",
+					"GasMask_Filter", "IodineTincture", "NBCBootsGray", "NBCGlovesGray", "NBCHoodGray", "NBCJacketGray","NBCPantsGray",
+					"PainkillerTablets", "StartKitIV", "BloodTestKit", "CharcoalTablets", "ChelatingTablets", "AntiChemInjector",
+					"GP5GasMask", "AirborneMask", "HipPack_Medical", "FirstAidKit"
+				});
+		}
+		else if (crateType == "RuckCrashStorageOrange")
+		{
+			maxLoot = Math.Clamp(settings.MaxLootItemsOrange, 1, 30);
+			if (HasCustomLootFor("Orange", settings))
+				lootPool = settings.CustomLootItemsOrange;
+			else
+				lootPool.InsertAll({
+					"FNX45","VSS","ASVAL","Vikhr","SV98","Winchester70","Mosin9130","SKS","AKM","AK74",
+					"AKS74U","AK101","M4A1","M16A2","FAMAS","Aug","AugShort","FAL","SVD","SVD_Wooden",
+					"Engraved1911","B95","Saiga","Deagle","Deagle_Gold","Scout","CZ550","R12","M14","M79",
+					"PlateCarrierVest","PlateCarrierVest_Black","PlateCarrierVest_Green","PlateCarrierVest_Camo","PlateCarrierVest_Winter",
+					"GorkaHelmet","GorkaHelmet_Black","Mich2001Helmet","AliceBag_Green","AliceBag_Black","AliceBag_Camo",
+					"OMKPants_Navy","OMKJacket_Navy","MilitaryBoots_Black","MilitaryBelt",
+					"Plastic_Explosive","AmmoBox_762x54_20Rnd","Ammo_308Win","AmmoBox_545x39_20Rnd","AmmoBox_556x45_20Rnd",
+					"AmmoBox_762x39_20Rnd","AmmoBox_9x39AP_20Rnd","Ammo_40mm_Explosive","Ammo_40mm_ChemGas",
+					"NVGoggles","NVGHeadstrap","Headtorch_Grey","Headtorch_Black","UniversalLight", "M67Grenade", "RGD5Grenade",
+					"M4_Suppressor","AK_Suppressor","PistolSuppressor", "AmmoBox_00buck_10rnd", "AmmoBox_22_50Rnd", "AmmoBox_308WinTracer_20Rnd", "AmmoBox_357_20Rnd", "AmmoBox_762x39_20Rnd", "AmmoBox_9x19_25rnd",
+					"SalineBagIV", "BandageDressing", "Epinephrine", "Morphine", "VitaminBottle", "BloodBagEmpty", "TetracyclineAntibiotics",
+					"GasMask_Filter", "IodineTincture", "NBCBootsGray", "NBCGlovesGray", "NBCHoodGray", "NBCJacketGray","NBCPantsGray",
+					"PainkillerTablets", "StartKitIV", "BloodTestKit", "CharcoalTablets", "ChelatingTablets", "AntiChemInjector",
+					"GP5GasMask", "AirborneMask", "HipPack_Medical", "FirstAidKit"
+				});
+		}
+		else
+		{
+			Print("⚠️ Unknown crate type: " + crateType);
+			return;
+		}
+
 		ref map<string, ref array<string>> weaponBonusLoot = GetWeaponBonusLootweaponMap();
 
 		ref array<string> shuffledLoot = new array<string>;
@@ -552,7 +791,6 @@ class PlaneCrash extends CrashBase
 		ShuffleStringArray(shuffledLoot);
 
 		int lootIndex = 0;
-		ref set<string> spawnedWeapons = new set<string>();
 
 		for (int i = 0; i < maxLoot; ++i)
 		{
@@ -562,36 +800,53 @@ class PlaneCrash extends CrashBase
 				lootIndex = 0;
 			}
 
-			string itemName = shuffledLoot.Get(lootIndex++);
+			string itemName = shuffledLoot.Get(lootIndex);
+			lootIndex++;
+
 			ItemBase item = ItemBase.Cast(crate.GetInventory().CreateInInventory(itemName));
-
-			if (!item)
+			if (item)
 			{
-				Print("⚠️ Cannot add " + itemName + " to crate inventory");
-				continue;
-			}
-
-			item.SetHealth01("", "", Math.RandomFloat(0.4, 1.0));
-
-			if (weaponBonusLoot.Contains(itemName))
-			{
-				ref array<string> bonusItems = weaponBonusLoot.Get(itemName);
-				foreach (string bonusName : bonusItems)
+				if (settings.PristineLoot)
 				{
-					ItemBase bonusItem = ItemBase.Cast(crate.GetInventory().CreateInInventory(bonusName));
-					if (bonusItem)
+					item.SetHealth01("", "", 1.0);
+				}
+				else
+				{
+					item.SetHealth01("", "", Math.RandomFloat(0.4, 1.0));
+				}
+
+				if (weaponBonusLoot.Contains(itemName))
+				{
+					ref array<string> bonusItems = weaponBonusLoot.Get(itemName);
+					foreach (string bonusName : bonusItems)
 					{
-						bonusItem.SetHealth01("", "", Math.RandomFloat(0.6, 1.0));
-					}
-					else
-					{
-						Print("⚠️ Failed to spawn bonus item: " + bonusName + " for weapon: " + itemName);
+						ItemBase bonusItem = ItemBase.Cast(crate.GetInventory().CreateInInventory(bonusName));
+						if (bonusItem)
+						{
+							if (settings.PristineLoot)
+							{
+								bonusItem.SetHealth01("", "", 1.0);
+							}
+							else
+							{
+								bonusItem.SetHealth01("", "", Math.RandomFloat(0.6, 1.0));
+							}
+						}
+						else
+						{
+							Print("⚠️ Failed to spawn bonus item: " + bonusName + " for weapon: " + itemName);
+						}
 					}
 				}
 			}
+			else
+			{
+				Print("⚠️ Cannot add " + itemName + " to crate inventory " + crateType);
+			}
 		}
-	}
 
+	}
+	
 	static void ShuffleStringArray(ref array<string> arr)
 	{
 		int count = arr.Count();
@@ -820,12 +1075,28 @@ class PlaneCrash extends CrashBase
 		return weaponMap;
 	}
 	
-	static void SendCrashNotification(vector pos)
+	static void SendCrashNotification(vector pos, string customMessage)
 	{
-		if (!PlaneCrashSettings.Get().EnableCrashNotification)
-			return;  
+		auto settings = PlaneCrashSettings.Get();
+		if (!settings.EnableCrashNotification)
+			return;
 
-		string msg = string.Format("Downed plane spotted at coordinates x(%1) z(%2)",pos[0].ToString(), pos[2].ToString());
+		string baseMsg = PlaneCrashRuckLocationFinder.BuildPlaneCrashMessage(pos);
+
+		string msg;
+		if (PlaneCrashSettings.Get().EnableCustomCrashSites && customMessage != "" && customMessage != "Crash spotted")
+		{
+			msg = customMessage;
+		}
+		else
+		{
+			msg = baseMsg;
+		}
+
+		if (settings.ShowCoordinatesInNotification)
+		{
+			msg = msg + string.Format(" [x:%1 z:%2]", Math.Round(pos[0]).ToString(), Math.Round(pos[2]).ToString());
+		}
 
 		array<Man> players = new array<Man>;
 		GetGame().GetPlayers(players);
@@ -836,15 +1107,13 @@ class PlaneCrash extends CrashBase
 			if (pb && pb.IsAlive())
 			{
 				#ifdef EXPANSIONMOD
-				PlayerIdentity id = pb.GetIdentity(); 
-				// Send directly to the player to avoid multiple notifications
-				ExpansionNotification("Plane Crash", msg, "set:dayz_inventory image:explosive", COLOR_EXPANSION_NOTIFICATION_MISSION, 15.0).Create(id);
+				PlayerIdentity id = pb.GetIdentity();
+				ExpansionNotification(settings.NotificationTitle, msg, "set:dayz_inventory image:explosive", COLOR_EXPANSION_NOTIFICATION_MISSION, 15.0).Create(id);
 				#else
 				pb.MessageStatus(msg);
-				NotificationSystem.SendNotificationToPlayerExtended(pb, 15, "Plane Crash", msg, "set:dayz_inventory image:explosive");
+				NotificationSystem.SendNotificationToPlayerExtended(pb, 15, settings.NotificationTitle, msg, "set:dayz_inventory image:explosive");
 				#endif
 			}
 		}
 	}
 }
-

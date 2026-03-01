@@ -31,7 +31,7 @@ class WreckContainerRed extends Land_ContainerLocked_Red_DE
 		{
 			if (!FindAttachmentBySlotName("Truck_01_WoodenCrate1"))
 			{
-				GetInventory().CreateAttachment("RuckCrashStorage");
+				GetInventory().CreateAttachment("RuckCrashStorageRed");
 			}
 
 			if (!m_InventoryUnlocked)
@@ -220,7 +220,7 @@ class WreckContainerBlue extends Land_ContainerLocked_Blue_DE
 		{
 			if (!FindAttachmentBySlotName("Truck_01_WoodenCrate1"))
 			{
-				GetInventory().CreateAttachment("RuckCrashStorage");
+				GetInventory().CreateAttachment("RuckCrashStorageBlue");
 			}
 
 			if (!m_InventoryUnlocked)
@@ -409,7 +409,7 @@ class WreckContainerYellow extends Land_ContainerLocked_Yellow_DE
 		{
 			if (!FindAttachmentBySlotName("Truck_01_WoodenCrate1"))
 			{
-				GetInventory().CreateAttachment("RuckCrashStorage");
+				GetInventory().CreateAttachment("RuckCrashStorageYellow");
 			}
 
 			if (!m_InventoryUnlocked)
@@ -598,7 +598,7 @@ class WreckContainerOrange extends Land_ContainerLocked_Orange_DE
 		{
 			if (!FindAttachmentBySlotName("Truck_01_WoodenCrate1"))
 			{
-				GetInventory().CreateAttachment("RuckCrashStorage");
+				GetInventory().CreateAttachment("RuckCrashStorageOrange");
 			}
 
 			if (!m_InventoryUnlocked)
