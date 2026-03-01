@@ -1,25 +1,42 @@
+class DropSiteData
+{
+    vector Position;
+    string NotificationMessage;
+    
+    void DropSiteData(vector pos, string msg)
+    {
+        Position = pos;
+        NotificationMessage = msg;
+    }
+}
+
 class AirDropSettings
 {
     int DropIntervalMin = 1200000;
     int DropIntervalMax = 1800000;
 
     bool EnableCustomDropSites = false;
+	 bool EnableGasZones = false;
+    int GasZoneChancePercent = 100;
 	
 	bool EnableExpansionMarkers = true;
 	bool EnableBasicMapMarkers = true;
-	bool EnableLBMasterMarkers    = true;
+	bool EnableLBMasterMarkers = true;
+	bool EnableRuckMapMarkers = true;
 	
-	bool EnableContainerBlue   = true;
-    bool EnableContainerRed    = true;
+	bool EnableContainerBlue = true;
+    bool EnableContainerRed = true;
     bool EnableContainerYellow = true;
     bool EnableContainerOrange = true;
+	
+	bool PristineLoot = false;
 
     bool EnableCustomLootItemsRed = false;
     bool EnableCustomLootItemsBlue = false;
     bool EnableCustomLootItemsYellow = false;
     bool EnableCustomLootItemsOrange = false;
 
-    ref array<vector> CustomDropSites;
+    ref array<ref DropSiteData> CustomDropSites;
 
     ref array<string> CustomLootItemsRed;
     ref array<string> CustomLootItemsBlue;
@@ -33,6 +50,9 @@ class AirDropSettings
 
     int ZombieCount = 15;
     bool EnableDropNotification = false;
+    
+    string NotificationTitle = "Supply Drop";
+    bool ShowCoordinatesInNotification = true;
 
     bool EnableCustomZombieTypes = false;
     ref array<string> CustomZombieTypes;
@@ -41,7 +61,7 @@ class AirDropSettings
 
     void AirDropSettings()
     {
-        CustomDropSites = new array<vector>();
+        CustomDropSites = new array<ref DropSiteData>();
         CustomLootItemsRed = new array<string>();
         CustomLootItemsBlue = new array<string>();
         CustomLootItemsYellow = new array<string>();
@@ -74,9 +94,11 @@ class AirDropSettings
         else
         {
             JsonFileLoader<AirDropSettings>.JsonSaveFile(path, cfg);
-            Print("[AirDrop] 📁 Config created in Ruckus folder.");
+            Print("[AirDrop] 📝 Config created in Ruckus folder.");
         }
-
+		
+		 cfg.GasZoneChancePercent = Math.Clamp(cfg.GasZoneChancePercent, 0, 100);
+		 
         m_Instance = cfg;
     }
 }

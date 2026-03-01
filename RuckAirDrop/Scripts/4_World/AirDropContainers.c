@@ -89,6 +89,9 @@ class AirdropContainerRed extends Land_ContainerLocked_Red_DE
 			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRemoveMarkerFor(this);
 			#endif
+			#ifdef RUCKMAP
+				RuckMapDropCache.ServerRemove(this);
+			#endif
 		#endif
 
 		super.EEDelete(parent);
@@ -135,6 +138,9 @@ class AirdropContainerRed extends Land_ContainerLocked_Red_DE
 			#endif
 			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRecreateAfterLoad(this);
+			#endif
+			#ifdef RUCKMAP
+				RuckMapDropCache.ServerRecreateAfterLoad(this);
 			#endif
 		#endif
 	}
@@ -325,6 +331,9 @@ class AirdropContainerBlue extends Land_ContainerLocked_Blue_DE
 			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRemoveMarkerFor(this);
 			#endif
+			#ifdef RUCKMAP
+				RuckMapDropCache.ServerRemove(this);
+			#endif
 		#endif
 
 		super.EEDelete(parent);
@@ -371,6 +380,9 @@ class AirdropContainerBlue extends Land_ContainerLocked_Blue_DE
 			#endif
 			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRecreateAfterLoad(this);
+			#endif
+			#ifdef RUCKMAP
+				RuckMapDropCache.ServerRecreateAfterLoad(this);
 			#endif
 		#endif
 
@@ -558,6 +570,9 @@ class AirdropContainerYellow extends Land_ContainerLocked_Yellow_DE
 			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRemoveMarkerFor(this);
 			#endif
+			#ifdef RUCKMAP
+				RuckMapDropCache.ServerRemove(this);
+			#endif
 		#endif
 
 		super.EEDelete(parent);
@@ -604,6 +619,9 @@ class AirdropContainerYellow extends Land_ContainerLocked_Yellow_DE
 			#endif
 			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRecreateAfterLoad(this);
+			#endif
+			#ifdef RUCKMAP
+				RuckMapDropCache.ServerRecreateAfterLoad(this);
 			#endif
 		#endif
 
@@ -795,6 +813,9 @@ class AirdropContainerOrange extends Land_ContainerLocked_Orange_DE
 			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRemoveMarkerFor(this);
 			#endif
+			#ifdef RUCKMAP
+				RuckMapDropCache.ServerRemove(this);
+			#endif
 		#endif
 
 		super.EEDelete(parent);
@@ -841,6 +862,9 @@ class AirdropContainerOrange extends Land_ContainerLocked_Orange_DE
 			#endif
 			#ifdef EXPANSIONMODNAVIGATION
 				RuckExpansionMarkerService.ServerRecreateAfterLoad(this);
+			#endif
+			#ifdef RUCKMAP
+				RuckMapDropCache.ServerRecreateAfterLoad(this);
 			#endif
 		#endif
 	}

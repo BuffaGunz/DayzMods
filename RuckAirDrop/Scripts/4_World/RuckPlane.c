@@ -26,10 +26,13 @@ class RuckPlane extends CrashBase
 	{
 		auto settings = AirDropSettings.Get();
 		vector dropLocation;
+		string customTail = "Supply drop inbound for"; 
 
 		if (settings.EnableCustomDropSites && settings.CustomDropSites.Count() > 0)
 		{
-			dropLocation = settings.CustomDropSites.GetRandomElement();
+			DropSiteData selectedSite = settings.CustomDropSites.GetRandomElement();
+			dropLocation = selectedSite.Position;
+			customTail = selectedSite.NotificationMessage; 
 			dropLocation[1] = GetGame().SurfaceY(dropLocation[0], dropLocation[2]);
 		}
 		else
@@ -38,7 +41,7 @@ class RuckPlane extends CrashBase
 			dropLocation[1] = GetGame().SurfaceY(dropLocation[0], dropLocation[2]);
 		}
 
-		ref array<string> directions = { "SouthWest", "SouthEast", "NorthWest", "NorthEast"  };
+		ref array<string> directions = { "SouthWest", "SouthEast", "NorthWest", "NorthEast" };
 		if (m_LastDirection != "") directions.RemoveItem(m_LastDirection);
 		string dir = directions.GetRandomElement();
 		m_LastDirection = dir;
@@ -79,15 +82,15 @@ class RuckPlane extends CrashBase
 		if (plane)
 		{
 			plane.SetDropLocation(dropLocation);
-
 			vector orientation = Vector(yaw, pitch, roll);
 			plane.SetOrientation(orientation);
 		}
 		
 		if (AirDropSettings.Get().EnableDropNotification)
 		{
-			SendDropNotification(dropLocation);
+			SendDropNotification(dropLocation, customTail);
 		}
+
 	}
 
 	void SetDropLocation(vector dropLocation)
@@ -227,6 +230,8 @@ class RuckPlane extends CrashBase
 
 	void UpdateDropLoop()
 	{
+		AirDropSettings settings = AirDropSettings.Get();
+		
 		if (!m_Container || !m_Container.IsAlive())
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(this.UpdateDropLoop);
@@ -263,7 +268,7 @@ class RuckPlane extends CrashBase
 		else if (!m_ContainerLanded)
 		{
 			m_ContainerLanded = true;
-			
+
 			#ifdef SERVER
 				string ctype = m_Container.GetType();  
 
@@ -275,6 +280,9 @@ class RuckPlane extends CrashBase
 				#endif
 				#ifdef EXPANSIONMODNAVIGATION
 					RuckExpansionMarkerService.ServerCreateMarkerForContainer(ctype, m_Container);
+				#endif
+				#ifdef RUCKMAP
+					RuckMapDropCache.ServerAdd(m_Container);
 				#endif
 			#endif
 
@@ -309,17 +317,53 @@ class RuckPlane extends CrashBase
 
 			m_Container.PlaceOnSurface();
 
+			bool GasSpawned = false;
+
+			if (settings && settings.EnableGasZones)
+			{
+				int chance = Math.Clamp(settings.GasZoneChancePercent, 0, 100);
+				if (chance >= 100 || (chance > 0 && Math.RandomIntInclusive(1, 100) <= chance))
+				{
+					vector droppos = m_Container.GetPosition();
+					droppos[1] = GetGame().SurfaceY(droppos[0], droppos[2]) + 0.5;
+					
+					ContaminatedArea_Static AreaCloud = ContaminatedArea_Static.Cast(GetGame().CreateObject("ContaminatedArea_Static", droppos));
+					ContaminatedArea_Dynamic AreaDmg  = ContaminatedArea_Dynamic.Cast(GetGame().CreateObject("ContaminatedArea_Dynamic", droppos));
+
+					if (AreaCloud || AreaDmg)
+					{
+						GasSpawned = true;
+
+						if (AreaCloud)
+						{
+							AreaCloud.SetSynchDirty();
+							GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, 15 * 60 * 1000, false, AreaCloud);
+						}
+
+						if (AreaDmg)
+						{
+							AreaDmg.SetSynchDirty();
+							GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, 15 * 60 * 1000, false, AreaDmg);
+						}
+					}
+				}
+			}
+
 			m_Container.SetAffectPathgraph(true, true);
 			GetGame().UpdatePathgraphRegionByObject(m_Container);
 			m_Container.SetSynchDirty();
-			
+
 			FillContainerWithRandomLoot(m_Container);
-			SpawnZombiesAtDrop(m_Container, m_KeyType);
+
+			if (GasSpawned)
+				SpawnZombiesAtDrop_NBC(m_Container, m_KeyType);
+			else
+				SpawnZombiesAtDrop(m_Container, m_KeyType);
 
 			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(this.UpdateDropLoop);
 		}
 	}	
-
+	
 	static vector FindValidDropSite()
 	{
 		float worldSize = GetGame().GetWorld().GetWorldSize();
@@ -406,6 +450,62 @@ class RuckPlane extends CrashBase
 		float size = GetGame().GetWorld().GetWorldSize();
 		return pos[0] >= -10 && pos[0] <= size + 10 && pos[2] >= -10 && pos[2] <= size + 10;
 	}
+	
+	static void SpawnZombiesAtDrop_NBC(EntityAI container, string keyName)
+	{
+		auto settings = AirDropSettings.Get();
+		int zombieCount = Math.Clamp(settings.ZombieCount, 1, 40);
+
+		ref array<string> zombieTypes = {
+			"ZmbM_NBC_Grey",
+			"ZmbM_NBC_White",
+			"ZmbM_NBC_Yellow"
+		};
+
+		vector wreckPos = container.GetPosition();
+		ref array<DayZInfected> spawnedZombies = new array<DayZInfected>();
+
+		for (int i = 0; i < zombieCount; ++i)
+		{
+			float minRadius = 10.0;
+			float maxRadius = 25.0;
+
+			float angle = Math.RandomFloat(0, 360);
+			float radius = Math.RandomFloat(minRadius, maxRadius);
+
+			float xOffset = radius * Math.Cos(angle);
+			float zOffset = radius * Math.Sin(angle);
+
+			vector zombiePos = wreckPos + Vector(xOffset, 0, zOffset);
+			zombiePos[1] = GetGame().SurfaceY(zombiePos[0], zombiePos[2]);
+
+			DayZInfected zmb = DayZInfected.Cast(GetGame().CreateObject(zombieTypes.GetRandomElement(), zombiePos, false, true, true));
+			if (zmb)
+			{
+				zmb.PlaceOnSurface();
+				zmb.SetOrientation(Vector(0, Math.RandomFloat(0, 360), 0));
+				zmb.SetAffectPathgraph(true, true);
+				zmb.SetSynchDirty();
+				spawnedZombies.Insert(zmb);
+			}
+		}
+
+		if (keyName != "" && spawnedZombies.Count() > 0)
+		{
+			DayZInfected keyZombie = spawnedZombies.GetRandomElement();
+			ItemBase keyItem = ItemBase.Cast(keyZombie.GetInventory().CreateInInventory(keyName));
+			if (keyItem)
+			{
+				keyItem.SetHealth01("", "", 0.10);
+				PrintFormat("[AirDrop] Spawned key '%1' on NBC zombie: %2", keyName, keyZombie);
+			}
+			else
+			{
+				PrintFormat("[AirDrop] ERROR: Failed to create key '%1' on NBC zombie: %2", keyName, keyZombie);
+			}
+		}
+	}
+
 
 	static void SpawnZombiesAtDrop(EntityAI container, string keyName)
 	{
@@ -620,7 +720,14 @@ class RuckPlane extends CrashBase
 			ItemBase item = ItemBase.Cast(crate.GetInventory().CreateInInventory(itemName));
 			if (item)
 			{
-				item.SetHealth01("", "", Math.RandomFloat(0.4, 1.0));
+				if (settings.PristineLoot)
+				{
+					item.SetHealth01("", "", 1.0);
+				}
+				else
+				{
+					item.SetHealth01("", "", Math.RandomFloat(0.4, 1.0));
+				}
 
 				if (weaponBonusLoot.Contains(itemName))
 				{
@@ -630,7 +737,14 @@ class RuckPlane extends CrashBase
 						ItemBase bonusItem = ItemBase.Cast(crate.GetInventory().CreateInInventory(bonusName));
 						if (bonusItem)
 						{
-							bonusItem.SetHealth01("", "", Math.RandomFloat(0.6, 1.0));
+							if (settings.PristineLoot)
+							{
+								bonusItem.SetHealth01("", "", 1.0);
+							}
+							else
+							{
+								bonusItem.SetHealth01("", "", Math.RandomFloat(0.6, 1.0));
+							}
 						}
 						else
 						{
@@ -927,12 +1041,28 @@ class RuckPlane extends CrashBase
 		return weaponMap;
 	}
 
-	static void SendDropNotification(vector pos)
+	static void SendDropNotification(vector pos, string customMessage)
 	{
-		if (!AirDropSettings.Get().EnableDropNotification)
+		auto settings = AirDropSettings.Get();
+		if (!settings.EnableDropNotification)
 			return;
 
-		string msg = string.Format("Supply drop inbound for coordinates x(%1) z(%2)",pos[0].ToString(), pos[2].ToString());
+		string baseMsg = RuckLocationFinder.BuildAirdropMessage(pos);
+
+		string msg;
+		if (AirDropSettings.Get().EnableCustomDropSites && customMessage != "" && customMessage != "Supply drop inbound for")
+		{
+			msg = customMessage;
+		}
+		else
+		{
+			msg = baseMsg;
+		}
+
+		if (settings.ShowCoordinatesInNotification)
+		{
+			msg = msg + string.Format(" [x:%1 z:%2]", Math.Round(pos[0]).ToString(), Math.Round(pos[2]).ToString());
+		}
 
 		array<Man> players = new array<Man>;
 		GetGame().GetPlayers(players);
@@ -943,15 +1073,13 @@ class RuckPlane extends CrashBase
 			if (pb && pb.IsAlive())
 			{
 				#ifdef EXPANSIONMOD
-				PlayerIdentity id = pb.GetIdentity(); 
-				// Send directly to the player to avoid multiple notifications
-				ExpansionNotification("Supply Drop", msg, "set:dayz_inventory image:explosive", COLOR_EXPANSION_NOTIFICATION_MISSION, 15.0).Create(id);
+				PlayerIdentity id = pb.GetIdentity();
+				ExpansionNotification(settings.NotificationTitle, msg, "set:dayz_inventory image:explosive", COLOR_EXPANSION_NOTIFICATION_MISSION, 15.0).Create(id);
 				#else
 				pb.MessageStatus(msg);
-				NotificationSystem.SendNotificationToPlayerExtended(pb, 15, "Supply Drop", msg, "set:dayz_inventory image:explosive");
+				NotificationSystem.SendNotificationToPlayerExtended(pb, 15, settings.NotificationTitle, msg, "set:dayz_inventory image:explosive");
 				#endif
 			}
 		}
 	}
-
 };
