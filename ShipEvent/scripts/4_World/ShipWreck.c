@@ -1,7 +1,6 @@
-class ShipWreck extends BuildingSuper
+class ShipWreck extends CrashBase
 {
 	protected string      m_ShipWreck_SoundSet = "ShipWreck_SoundSet";
-	protected EffectSound m_ShipWreck_Sound;
 	
 	static const int RUCK_MAX_CONTAINER_LIFETIME   = 2700000; 
 	static const int RUCK_CHECK_INTERVAL           = 100000;  
@@ -9,8 +8,18 @@ class ShipWreck extends BuildingSuper
 	
 	protected int  m_RuckElapsedMs = 0;    
 	protected bool m_RuckTimerArmed = false; 
+	static bool m_ShipInit = ShipInit();
 	
-	Particle m_ParticleEfx;
+	static bool ShipInit()
+	{
+		CrashSoundSets.RegisterSoundSet("ShipWreck_SoundSet");
+		return true;
+	}
+	
+	string GetSoundSet()
+	{
+		return "ShipWreck_SoundSet";
+	}
 	
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
@@ -73,6 +82,9 @@ class ShipWreck extends BuildingSuper
 			#ifdef EXPANSIONMODNAVIGATION
 				RuckShipExpansionMarkerService.ServerRecreateAfterLoad(this);
 			#endif
+			#ifdef RUCKMAP
+				RuckMapWreckCache.ServerRecreateAfterLoad(this);
+			#endif
 		#endif
 	}
 	
@@ -87,7 +99,6 @@ class ShipWreck extends BuildingSuper
 
 		if (!GetGame().IsDedicatedServer())
 		{
-			PlaySoundSet(m_ShipWreck_Sound, m_ShipWreck_SoundSet, 0.0, 0.0);
 			vector forward = GetDirection();                      
 			vector offset = (forward * -16.0) + Vector(0, 1.0, 0);   
 			m_ParticleEfx = Particle.PlayOnObject(ParticleList.SMOKING_HELI_WRECK, this, offset);
@@ -101,8 +112,6 @@ class ShipWreck extends BuildingSuper
 		if (GetGame()) GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.Ruck_TimerTick);
 		m_RuckTimerArmed = false;
 
-		if (m_ShipWreck_Sound)
-			StopSoundSet(m_ShipWreck_Sound);
 		if (!GetGame().IsDedicatedServer() && m_ParticleEfx)
 			m_ParticleEfx.Stop();
 
@@ -115,6 +124,9 @@ class ShipWreck extends BuildingSuper
 			#endif
 			#ifdef EXPANSIONMODNAVIGATION
 				RuckShipExpansionMarkerService.ServerRemoveMarkerFor(this);
+			#endif
+			#ifdef RUCKMAP
+				RuckMapWreckCache.ServerRemove(this);
 			#endif
 		#endif
 	}
@@ -164,12 +176,10 @@ class ShipWreck extends BuildingSuper
 			float y = GetGame().SurfaceY(x, z);
 			vector pos = Vector(x, y, z);
 
-			// ✅ Check slope (keep ship level)
 			vector normal = GetGame().SurfaceGetNormal(x, z);
 			if (normal[1] < 0.95)
 				continue;
 
-			// ✅ Check water
 			string surfType;
 			GetGame().SurfaceGetType(x, z, surfType);
 			surfType.ToLower();
@@ -177,14 +187,12 @@ class ShipWreck extends BuildingSuper
 			if (!GetGame().SurfaceIsSea(x, z))
 				continue;
 
-			// 🧊 Exclude ice sheets (Sakhal etc.)
 			if (surfType.Contains("sakhal_ice_sea") || surfType.Contains("ice"))
 			{
 				Print("[ShipWreck] Skipping ice surface: " + surfType);
 				continue;
 			}
 
-			// ✅ Check for nearby ice within 40m
 			bool nearIce = false;
 			for (float angle = 0; angle < 360; angle += 45)
 			{
@@ -203,7 +211,6 @@ class ShipWreck extends BuildingSuper
 			if (nearIce)
 				continue;
 
-			// ✅ Check nearby objects to avoid overlap
 			array<Object> objects = {};
 			array<CargoBase> dummy = {};
 			GetGame().GetObjectsAtPosition(pos, 40.0, objects, dummy);
@@ -223,12 +230,10 @@ class ShipWreck extends BuildingSuper
 			if (blocked)
 				continue;
 
-			// ✅ Valid position found
 			return pos;
 
 		}
 
-		// ❌ Failed to find valid position
 		return vector.Zero;
 	}
 
@@ -236,7 +241,6 @@ class ShipWreck extends BuildingSuper
 	{
 		vector crashPos = FindValidCrashSite();
 
-		// Prevent duplicate spawn
 		array<Object> nearby = {};
 		array<CargoBase> dummy = {};
 		GetGame().GetObjectsAtPosition(crashPos, 100.0, nearby, dummy);
@@ -249,10 +253,10 @@ class ShipWreck extends BuildingSuper
 			}
 		}
 
-		// --- Spawn wreck ---
 		ShipWreck wreck = ShipWreck.Cast(GetGame().CreateObject("ShipWreck", crashPos));
 		if (!wreck) return;
-
+		
+		wreck.RequestSoundEvent(); 
 		wreck.PlaceOnSurface();
 		wreck.SetAffectPathgraph(true, true);
 		wreck.SetSynchDirty();
@@ -260,7 +264,6 @@ class ShipWreck extends BuildingSuper
 		
 		Print("[ShipWreck] Wreck placed and navmesh updated.");
 
-		// --- Send notification if enabled ---
 		if (ShipWreckSettings.Get().EnableCrashNotification)
 		{
 			SendCrashNotification(wreck.GetPosition());
@@ -278,20 +281,17 @@ class ShipWreck extends BuildingSuper
 			case "ShipContainerOrange": keyName = "ShippingContainerKeys_Orange"; break;
 		}
 
-		// --- Place container on ShipWreck deck (10m back) ---
 		vector dir = wreck.GetDirection();
 		vector cargoPos = wreck.GetPosition() + (dir * 10.0);
 
-		// Place container independently of the wreck
 		EntityAI container = EntityAI.Cast(GetGame().CreateObject(selectedType, cargoPos));
 		if (container)
 		{
 			container.PlaceOnSurface();
 			vector adjustedPos = container.GetPosition();
-			adjustedPos = Vector(adjustedPos[0], adjustedPos[1] + 0.2, adjustedPos[2]); // Raise slightly
+			adjustedPos = Vector(adjustedPos[0], adjustedPos[1] + 0.2, adjustedPos[2]); 
 			container.SetPosition(adjustedPos);
 
-			// Navmesh + sync
 			container.SetAffectPathgraph(true, true);
 			container.SetSynchDirty();
 			GetGame().UpdatePathgraphRegionByObject(container);
@@ -317,6 +317,9 @@ class ShipWreck extends BuildingSuper
 			#endif
 			#ifdef EXPANSIONMODNAVIGATION
 				RuckShipExpansionMarkerService.ServerCreateMarkerForWreck(wtype, wreck);
+			#endif
+			#ifdef RUCKMAP
+				RuckMapWreckCache.ServerAdd(wreck);
 			#endif
 		#endif
 
@@ -402,26 +405,24 @@ class ShipWreck extends BuildingSuper
 		
 		for (int i = 0; i < zombieCount; ++i)
 		{
-			// 🎲 Random deck height and offset
-			float deckHeight = 3.0 * Math.RandomInt(1, 4); // Random deck level (3m increments)
-			vector offset = wreckDir * Math.RandomFloat(-6, 6); // Forward/backward offset
+			float deckHeight = 3.0 * Math.RandomInt(1, 4);
+			vector offset = wreckDir * Math.RandomFloat(-6, 6); 
 			offset[1] = deckHeight;                            
-			offset += Vector(Math.RandomFloat(-2, 2), 0, Math.RandomFloat(-2, 2)); // Random sideways
+			offset += Vector(Math.RandomFloat(-2, 2), 0, Math.RandomFloat(-2, 2));
 
 			vector zombiePos = wreckPos + offset;
 
 			DayZInfected zmb = DayZInfected.Cast(GetGame().CreateObject(zombieTypes.GetRandomElement(), zombiePos, false, true, true));
 			if (zmb)
 			{
-				zmb.PlaceOnSurface();                // ✅ snap to wreck surface
-				zmb.SetDirection(wreckDir);          // align with wreck
-				zmb.SetAffectPathgraph(true, true);  // navmesh
+				zmb.PlaceOnSurface();                
+				zmb.SetDirection(wreckDir);          
+				zmb.SetAffectPathgraph(true, true); 
 				zmb.SetSynchDirty();
-				spawnedZombies.Insert(zmb);          // track for key assignment
+				spawnedZombies.Insert(zmb);        
 			}
 		}
 
-		// 🗝️ Assign key to one random zombie
 		if (keyName != "" && spawnedZombies.Count() > 0)
 		{
 			DayZInfected keyZombie = spawnedZombies.GetRandomElement();
@@ -535,7 +536,14 @@ class ShipWreck extends BuildingSuper
 				continue;
 			}
 
-			item.SetHealth01("", "", Math.RandomFloat(0.4, 1.0));
+			if (settings.PristineLoot)
+			{
+				item.SetHealth01("", "", 1.0);
+			}
+			else
+			{
+				item.SetHealth01("", "", Math.RandomFloat(0.4, 1.0));
+			}
 
 			if (weaponBonusLoot.Contains(itemName))
 			{
@@ -545,7 +553,14 @@ class ShipWreck extends BuildingSuper
 					ItemBase bonusItem = ItemBase.Cast(crate.GetInventory().CreateInInventory(bonusName));
 					if (bonusItem)
 					{
-						bonusItem.SetHealth01("", "", Math.RandomFloat(0.6, 1.0));
+						if (settings.PristineLoot)
+						{
+							bonusItem.SetHealth01("", "", 1.0);
+						}
+						else
+						{
+							bonusItem.SetHealth01("", "", Math.RandomFloat(0.6, 1.0));
+						}
 					}
 					else
 					{
@@ -802,7 +817,6 @@ class ShipWreck extends BuildingSuper
 			{
 				#ifdef EXPANSIONMOD
 				PlayerIdentity id = pb.GetIdentity(); 
-				// Send directly to the player to avoid multiple notifications
 				ExpansionNotification("Ship Wreck", msg, "set:dayz_inventory image:explosive", COLOR_EXPANSION_NOTIFICATION_MISSION, 15.0).Create(id);
 				#else
 				pb.MessageStatus(msg);

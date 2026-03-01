@@ -6,10 +6,14 @@ class ShipWreckSettings
     bool EnableCustomCrashSites = false;
     bool EnableCustomLootItems = false;
 	
+	bool PristineLoot = false;
+
+	
 	bool EnableExpansionMarkers = true;
 	bool EnableBasicMapMarkers = true;
 	bool EnableLBMasterMarkers = true;
-
+	bool EnableRuckMapMarkers = true;
+	
     ref array<vector> CustomCrashSites;
     ref array<string> CustomLootItems;
 

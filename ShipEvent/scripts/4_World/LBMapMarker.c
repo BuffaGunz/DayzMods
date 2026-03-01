@@ -22,9 +22,7 @@ class RuckShipLBMasterMarkerService
 		bool displayMap = true;
 		bool displayGPS = true;
 
-		LBServerMarker marker = LBStaticMarkerManager.Get.AddTempServerMarker(
-			label, pos, icon, color, toSurface, display3D, displayMap, displayGPS
-		);
+		LBServerMarker marker = LBStaticMarkerManager.Get.AddTempServerMarker(label, pos, icon, color, toSurface, display3D, displayMap, displayGPS);
 
 		if (!s_MarkerByObject) s_MarkerByObject = new map<EntityAI, ref LBServerMarker>();
 		if (!s_UIDByObject)    s_UIDByObject    = new map<EntityAI, int>();
