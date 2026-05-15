@@ -1,0 +1,20 @@
+ImageSetClass {
+ Name "RuckLogo"
+ RefSize 1024 1024
+ Textures {
+  ImageSetTextureClass {
+   mpix 1
+   path "{26613733B275DBF1}RuckloadscreenVanilla/gui/data/RuckTransparent.edds"
+  }
+ }
+ Images {
+  ImageSetDefClass RuckLogo {
+   Name "RuckLogo"
+   Pos 17 191
+   Size 979 696
+   Flags 0
+  }
+ }
+ Groups {
+ }
+}

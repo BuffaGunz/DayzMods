@@ -1,0 +1,257 @@
+WindowWidgetClass TextInputDialogRoot {
+ clipchildren 0
+ position 0 0
+ size 1 1
+ halign center_ref
+ valign center_ref
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 0
+ priority 1001
+ {
+  PanelWidgetClass toolbar_bg {
+   visible 0
+   inheritalpha 0
+   color 0 0 0 0.549
+   position 0 0
+   size 1 0.1
+   halign center_ref
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   priority 1
+   style ToolbarWidget
+   {
+    WrapSpacerWidgetClass ConsoleToolbar {
+     visible 1
+     clipchildren 0
+     position 0.05 0.1
+     size 800 48
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     priority 100
+     "no focus" 1
+     Padding 20
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign right
+     content_valign center
+     {
+      GridSpacerWidgetClass Back {
+       clipchildren 0
+       size 0 48
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       Padding 5
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+       content_valign center
+       Columns 2
+       Rows 1
+       {
+        RichTextWidgetClass BackIcon {
+         clipchildren 0
+         inheritalpha 0
+         position 40 0
+         size 48 48
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         scaled 1
+         text "BackIconData"
+         font "gui/fonts/sdf_MetronBook24"
+         "exact text" 1
+         "exact text size" 24
+         "size to text h" 1
+         "size to text v" 1
+         "text valign" center
+        }
+        TextWidgetClass BackText {
+         clipchildren 0
+         size 80 48
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         text "#str_textinputdialogroot_buttonleave0"
+         font "gui/fonts/sdf_MetronLight42"
+         "exact text" 1
+         "exact text size" 22
+         "size to text h" 1
+         "size to text v" 0
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  ImageWidgetClass Background {
+   ignorepointer 1
+   position 0 0
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   imageTexture "{0DBE2630AF5047FD}RuckloadscreenVanilla/gui/data/Ruckloadscreen1.edds"
+   mode blend
+   "src alpha" 1
+   "clamp mode" clamp
+   "stretch mode" stretch_w_h
+   {
+    TextWidgetClass dbg_Layout_name {
+     visible 0
+     position 150 500
+     size 300 50
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     text "dialog_login_time.layout"
+     font "gui/fonts/sdf_MetronLight24"
+     "exact text" 1
+    }
+   }
+  }
+  PanelWidgetClass BottomPanel {
+   visible 1
+   clipchildren 0
+   ignorepointer 1
+   color 0 0 0 0.9412
+   position 0 0
+   size 1 148                 
+   halign center_ref
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1               
+   style rover_sim_colorable
+   {
+    TextWidgetClass HintTestLongText {
+     visible 0
+     ignorepointer 1
+     position 0 0.45
+     size 0.8 0.4
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scaled 1
+     text "Bad blood: When giving your friend a blood transfusion, be sure to provide him with a compatible blood type, else he will risk a hemolytic reaction."
+     font "gui/fonts/Metron"
+     "exact text" 0
+     text_proportion 0.3
+     "text halign" center
+     "text valign" center
+    }
+    TextWidgetClass HintTestShortText {
+     visible 0
+     ignorepointer 1
+     position 0 0.45
+     size 0.8 0.4
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scaled 1
+     text "Go inland: The inland holds better loot than the coastal villages."
+     font "gui/fonts/Metron"
+     "exact text" 0
+     text_proportion 0.3
+     "text halign" center
+     "text valign" center
+    }
+    FrameWidgetClass hint_frame0 {
+     visible 1
+     clipchildren 0
+     ignorepointer 1
+     position 0 0.38
+     size 0.8 0.5
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scaled 1
+    }
+    TextWidgetClass txtLabel {
+     disabled 0
+     position 32 0           
+     size 600 32              
+     halign right_ref         
+     valign center_ref        
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     style Bold
+     text "Loading timer"
+     font "gui/fonts/sdf_MetronBook42"
+     "exact text" 1
+     "exact text size" 32
+     "size to text h" 1
+     "size to text v" 1
+     "text halign" center
+     "text valign" center
+	 color 0.6 0 0 1
+    }
+	PanelWidgetClass PanelWidget0 {
+	  clipchildren 0
+	  ignorepointer 0                
+	  position 32 32                
+	  size 220 60                    
+	  halign left_ref               
+	  valign bottom_ref             
+	  hexactpos 1
+	  vexactpos 1
+	  hexactsize 1
+	  vexactsize 1
+	  priority 15
+	  {
+		ButtonWidgetClass btnLeave {
+		  visible 1
+		  color 0.6 0 0 1
+		  size 220 60               
+		  halign center_ref
+		  valign center_ref
+		  hexactpos 1
+		  vexactpos 1
+		  hexactsize 1
+		  vexactsize 1
+		  userID 1
+		  style EmptyHighlight
+		  text "#STR_TextInputDialogRoot_ButtonLeave0"
+		  text_proportion 0.55
+		  font "gui/fonts/sdf_MetronBook24"
+		  "disabled text color" 0.3412 0.3412 0.3412 1
+		}
+	  }
+	}
+   }
+  }
+ }
+}
